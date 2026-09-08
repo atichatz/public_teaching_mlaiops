@@ -12,6 +12,8 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
+import os
+import yaml
 from pathlib import Path
 
 import mlflow
@@ -23,6 +25,10 @@ from src import config, data, seeds
 
 
 def git_commit() -> str:
+    supplied_commit = os.environ.get("GIT_COMMIT")
+    if supplied_commit:
+        return supplied_commit
+
     try:
         out = subprocess.run(
             ["git", "rev-parse", "HEAD"],
@@ -32,6 +38,21 @@ def git_commit() -> str:
     except Exception:
         return "unknown"
 
+def dvc_data_hash() -> str:
+    dvc_file = config.REPO_ROOT / "data" / "raw.dvc"
+
+    if not dvc_file.exists():
+        return "unknown"
+
+    metadata = yaml.safe_load(dvc_file.read_text())
+    output = metadata["outs"][0]
+
+    return (
+        output.get("md5")
+        or output.get("etag")
+        or output.get("checksum")
+        or "unknown"
+    )
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="ITCS355 Lab 1 — reproducible training")
@@ -70,6 +91,7 @@ def main() -> None:
         mlflow.set_tags({
             "git_commit": git_commit(),
             "data_fingerprint": fingerprint,
+            "dvc_data_hash": dvc_data_hash(),
             "split_strategy": "group_by_machine_id",
             "n_train_rows": len(train_df),
             "n_val_rows": len(val_df),
