@@ -43,7 +43,7 @@ image-push: image ## Push to CONTAINER_REGISTRY via your adapter
 reproduce: data image ## THE ONE COMMAND. Grader runs this.
 	  mkdir -p reports
 	  chmod a+rwx reports
-          docker run --rm \
+	docker run --rm \
 	  -v "$$PWD/data:/app/data:ro" \
 	  -v "$$PWD/reports:/app/reports" \
 	  -e MLFLOW_TRACKING_URI=sqlite:////app/reports/mlflow.db \
