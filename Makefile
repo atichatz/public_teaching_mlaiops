@@ -6,10 +6,11 @@ IMAGE ?= itcs355-lab1
 TAG   ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo dev)
 PLATFORM ?= linux/amd64
 SEED ?= 20260101
+IMAGE_URI ?=
+INSTANCE ?= e2-standard-4
 
 .PHONY: help setup cloud-check data test portability-audit train image image-push reproduce verify clean teardown \
-        tune compare reload-check serve serve-image loadtest drift inject-drift pipeline cost swap-check llm-eval llm-gate
-
+        train-remote tune compare reload-check serve serve-image loadtest drift inject-drift pipeline cost swap-check llm-eval llm-gate
 help:
 	@grep -E "^[a-zA-Z_-]+:.*?## .*$$" $(MAKEFILE_LIST) | awk -F":.*?## " "{printf \"  %-20s %s\\n\", \$$1, \$$2}"
 
@@ -61,6 +62,10 @@ clean: ## Remove local artifacts
 	rm -rf mlruns mlartifacts mlflow.db reports/metrics.json .pytest_cache
 
 # --- Lab 2 -------------------------------------------------------------------
+train-remote: ## Submit one smoke-test training job to Vertex AI
+	@test -n "$(IMAGE_URI)" || (echo "IMAGE_URI is required" && exit 1)
+	python scripts/train_remote.py --image-uri "$(IMAGE_URI)" --instance "$(INSTANCE)"
+
 tune: ## Budgeted hyperparameter study (>=12 trials)
 	python -m src.tune --trials 12 --budget-thb 150
 

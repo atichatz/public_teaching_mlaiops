@@ -9,6 +9,7 @@ data is not evidence of anything.
 """
 from __future__ import annotations
 
+import joblib
 import argparse
 import json
 import subprocess
@@ -39,6 +40,10 @@ def git_commit() -> str:
         return "unknown"
 
 def dvc_data_hash() -> str:
+    supplied_hash = os.environ.get("DVC_DATA_HASH")
+    if supplied_hash:
+        return supplied_hash
+
     dvc_file = config.REPO_ROOT / "data" / "raw.dvc"
 
     if not dvc_file.exists():
@@ -64,16 +69,30 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--run-name", default=None)
     p.add_argument("--metrics-out", type=Path, default=None,
                    help="Write final metrics as JSON. Used by `make verify`.")
-    return p.parse_args()
+    p.add_argument(
+        "--data-path",
+        type=Path,
+        default=None,
+        help="Input CSV path; defaults to the configured local dataset.",
+    )
+    p.add_argument(
+        "--model-out",
+        type=Path,
+        default=None,
+        help="Write the trained model as a joblib file.",
+    )
 
+    return p.parse_args()
+    return p.parse_args()
 
 def main() -> None:
     args = parse_args()
     cfg = config.load(strict=False)
     seed = seeds.set_all(args.seed)
 
-    df = data.load_raw(cfg.raw_path)
-    fingerprint = data.data_fingerprint(cfg.raw_path)
+    raw_path = args.data_path or cfg.raw_path
+    df = data.load_raw(raw_path)
+    fingerprint = data.data_fingerprint(raw_path)
     train_df, val_df, test_df = data.split(df, seed=seed)
 
     mlflow.set_tracking_uri(cfg.mlflow_tracking_uri)
@@ -114,7 +133,9 @@ def main() -> None:
             metrics[f"{name}_pr_auc"] = float(average_precision_score(part[data.TARGET], proba))
         mlflow.log_metrics(metrics)
         mlflow.sklearn.log_model(model, name="model")
-
+        if args.model_out:
+            args.model_out.parent.mkdir(parents=True, exist_ok=True)
+            joblib.dump(model, args.model_out)
         print(json.dumps({"seed": seed, "data_fingerprint": fingerprint, **metrics}, indent=2))
         if args.metrics_out:
             args.metrics_out.parent.mkdir(parents=True, exist_ok=True)
