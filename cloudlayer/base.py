@@ -44,7 +44,10 @@ class CloudAdapter(ABC):
     def wait_training(self, job_id: str) -> dict[str, Any]:
         raise NotImplementedError("Lab 2")
 
-    def register_model(self, model_uri: str, name: str) -> str:
+    def register_model(self, model_uri: str, name: str, metadata: dict[str, Any] | None = None) -> str:
+        raise NotImplementedError("Lab 2")
+
+    def resolve_registered_model(self, name: str, version: str) -> dict[str, Any]:
         raise NotImplementedError("Lab 2")
 
     # --- Lab 3 ---------------------------------------------------------------

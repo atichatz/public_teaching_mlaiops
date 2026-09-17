@@ -78,7 +78,7 @@ compare: ## Rank runs by metric and by cost per point
 	python scripts/compare_runs.py --experiment itcs355-lab2
 
 reload-check: ## Load the registered model by version and score rows
-	python scripts/reload_check.py --name $(MODEL_REGISTRY_NAME) --version $(VERSION)
+	python scripts/reload_check.py
 
 # --- Lab 3 -------------------------------------------------------------------
 serve: ## Run the inference service locally on :8080

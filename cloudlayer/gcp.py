@@ -13,6 +13,7 @@ Hints for Lab 1:
   * GCP calls them labels, not tags, and they must be lowercase with no spaces.
     cfg.tags(1) already satisfies that constraint — do not "improve" the values.
 """
+import json
 import time
 import re
 import subprocess
@@ -215,4 +216,84 @@ class GcpAdapter(CloudAdapter):
             "output_uri": (
                 job.job_spec.base_output_directory.output_uri_prefix
             ),
+        }
+
+    def register_model(self, model_uri: str, name: str, metadata: dict[str, Any] | None = None) -> str:
+        metadata = metadata or {}
+        required = {
+            "git_commit",
+            "data_version",
+            "mlflow_run_id",
+            "training_job_id",
+            "image_digest",
+            "seed",
+            "metric_val",
+            "metric_test",
+        }
+        missing = sorted(required - metadata.keys())
+        if missing:
+            raise ValueError("Missing model lineage fields: " + ", ".join(missing))
+
+        image_uri = metadata.get("image_uri")
+        if not image_uri or "@sha256:" not in image_uri:
+            raise ValueError("metadata.image_uri must be digest-pinned")
+        if not model_uri.startswith("gs://"):
+            raise ValueError("model_uri must be a GCS URI")
+
+        artifact_uri = model_uri.rsplit("/", 1)[0]
+        bucket_name, _ = _parse_gcs_uri(self.cfg.blob_uri)
+        aiplatform.init(
+            project=self.cfg.project_id,
+            location=self.cfg.region,
+            staging_bucket=f"gs://{bucket_name}",
+        )
+
+        existing = aiplatform.Model.list(
+            filter=f'display_name="{name}"',
+            project=self.cfg.project_id,
+            location=self.cfg.region,
+        )
+        lineage = {key: metadata[key] for key in sorted(required)}
+        upload_args: dict[str, Any] = {
+            "display_name": name,
+            "artifact_uri": artifact_uri,
+            "serving_container_image_uri": image_uri,
+            "version_aliases": ["candidate"],
+            "version_description": json.dumps(lineage, sort_keys=True),
+            "labels": {
+                **self.cfg.tags(2),
+                "seed": str(metadata["seed"]),
+            },
+            "project": self.cfg.project_id,
+            "location": self.cfg.region,
+            "staging_bucket": f"gs://{bucket_name}",
+            "sync": True,
+        }
+        if existing:
+            upload_args["parent_model"] = existing[0].resource_name
+        else:
+            upload_args["model_id"] = name
+
+        model = aiplatform.Model.upload(**upload_args)
+        model.versioning_registry.add_version_aliases(["staging"], version=model.version_id)
+        print(f"registered model: {model.versioned_resource_name}")
+        print(f"version: {model.version_id}")
+        print("aliases: candidate, staging")
+        return model.version_id
+
+    def resolve_registered_model(self, name: str, version: str) -> dict[str, Any]:
+        aiplatform.init(project=self.cfg.project_id, location=self.cfg.region)
+        model = aiplatform.Model(
+            model_name=name,
+            project=self.cfg.project_id,
+            location=self.cfg.region,
+            version=version,
+        )
+        metadata = json.loads(model.version_description) if model.version_description else {}
+        return {
+            "name": model.versioned_resource_name,
+            "version": model.version_id,
+            "aliases": list(model.version_aliases),
+            "artifact_uri": model.uri,
+            "metadata": metadata,
         }

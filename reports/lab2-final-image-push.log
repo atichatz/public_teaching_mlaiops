@@ -1,0 +1,4 @@
+docker buildx build --platform linux/amd64 -t itcs355-lab1:a7ae14b --load .
+python -c "from src import config; from cloudlayer.factory import get_adapter; \
+print(get_adapter(config.load()).push_image(\"itcs355-lab1:a7ae14b\"))"
+asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab1@sha256:ccc06ac8315517a87af80853170043c24b35a06fef5ce394cb641c20a061f72b

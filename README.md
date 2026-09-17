@@ -114,6 +114,10 @@ remote. The Docker image is stored in Google Artifact Registry and is
 available using a digest-pinned reference. No cloud credentials are
 stored in this repository.
 
+### Lab 2 model promotion
+
+Model version 1 was promoted from `candidate` to `staging` only after its lineage was recorded and it passed the registry reload check. In a real organisation, promotion should be performed by an MLOps or release owner who is independent of the model author. They should require the exact Git commit, DVC data version, MLflow run, training job, image digest, seed, validation and test metrics, seed-variance results, cost evidence, and a successful reload test before approving the promotion.
+
 ---
 
 ## Checklist before you submit
