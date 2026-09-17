@@ -119,9 +119,12 @@ class GcpAdapter(CloudAdapter):
                 "Training image must be digest-pinned: repo@sha256:..."
             )
 
+        bucket_name, _ = _parse_gcs_uri(self.cfg.blob_uri)
+
         aiplatform.init(
             project=self.cfg.project_id,
             location=self.cfg.region,
+            staging_bucket=f"gs://{bucket_name}",
         )
 
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
@@ -163,7 +166,6 @@ class GcpAdapter(CloudAdapter):
             ),
             restart_job_on_worker_restart=True,
             timeout=3600,
-            max_wait_duration=3600,
         )
 
         return job.resource_name

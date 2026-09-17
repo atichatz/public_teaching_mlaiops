@@ -19,6 +19,27 @@ import pandas as pd
 from src import config
 
 
+def dataframe_to_markdown(frame: pd.DataFrame) -> str:
+    """Render a small DataFrame as Markdown without optional dependencies.
+
+    pandas.DataFrame.to_markdown() imports the optional ``tabulate`` package.
+    The comparison report is part of the core lab workflow, so generating it
+    must not depend on a package that is absent from the locked environment.
+    """
+    columns = [str(column) for column in frame.columns]
+
+    def row(values: list[object]) -> str:
+        cells = [str(value).replace("|", "\\|") for value in values]
+        return "| " + " | ".join(cells) + " |"
+
+    lines = [
+        row(columns),
+        row(["---"] * len(columns)),
+    ]
+    lines.extend(row(list(values)) for values in frame.itertuples(index=False, name=None))
+    return "\n".join(lines)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--experiment", default="itcs355-lab2")
@@ -65,11 +86,11 @@ def main() -> int:
         f"{args.metric} above the worst trial. Cheap improvements rank low; expensive "
         "improvements rank high, however good the headline number is.",
         "",
-        table.to_markdown(index=False),
+        dataframe_to_markdown(table),
         "",
         "## Which model did you register, and why?",
         "",
-        "TODO(Lab 2): 200 words maximum. Must address all four:",
+        "Justification: 200 words maximum. Address all four:",
         "",
         "1. Why this model rather than the highest-scoring one, if they differ",
         "2. The variance across seeds for your chosen configuration",

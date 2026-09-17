@@ -1,0 +1,39 @@
+submitting job: itcs355-lab2-smoke-20260917-095549
+data:           gs://itcs355-6688193-mlops-atichat/itcs355/lab2/data/sensors.csv
+output:         gs://itcs355-6688193-mlops-atichat/itcs355/lab2/jobs/itcs355-lab2-smoke-20260917-095549
+Creating CustomJob
+CustomJob created. Resource name: projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592
+To use this CustomJob in another session:
+custom_job = aiplatform.CustomJob.get('projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592')
+View Custom Job:
+https://console.cloud.google.com/agent-platform/locations/asia-southeast1/training/8718589272199790592?project=764569607430
+job_id:         projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592
+training job projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592: JOB_STATE_QUEUED
+training job projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592: JOB_STATE_PENDING
+training job projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592: JOB_STATE_PENDING
+training job projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592: JOB_STATE_PENDING
+training job projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592: JOB_STATE_PENDING
+training job projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592: JOB_STATE_PENDING
+training job projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592: JOB_STATE_PENDING
+training job projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592: JOB_STATE_PENDING
+training job projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592: JOB_STATE_RUNNING
+training job projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592: JOB_STATE_RUNNING
+training job projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592: JOB_STATE_RUNNING
+training job projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592: JOB_STATE_SUCCEEDED
+{
+  "job_id": "projects/764569607430/locations/asia-southeast1/customJobs/8718589272199790592",
+  "state": "JOB_STATE_SUCCEEDED",
+  "duration_s": 61.0,
+  "output_uri": "gs://itcs355-6688193-mlops-atichat/itcs355/lab2/jobs/itcs355-lab2-smoke-20260917-095549"
+}
+downloaded:     /tmp/itcs355-lab2-smoke-20260917-095549-metrics.json
+{
+  "seed": 20260102,
+  "data_fingerprint": "422cccb9136e8140",
+  "val_roc_auc": 0.8478904538538754,
+  "val_pr_auc": 0.42576836608027885,
+  "test_roc_auc": 0.8643488910914842,
+  "test_pr_auc": 0.5155123781201402
+}
+model_uri:      gs://itcs355-6688193-mlops-atichat/itcs355/lab2/jobs/itcs355-lab2-smoke-20260917-095549/model.joblib
+PASS remote training completed and artifacts were recovered

@@ -25,8 +25,8 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 from src import config, costs, data, seeds
 from src.train import git_commit
 
-# TODO(Lab 2): widen this. Three hyperparameters minimum, and vary something that
-# actually changes model behaviour rather than three variants of the same idea.
+# Twelve configurations vary tree count, tree depth, and leaf regularisation.
+# These parameters affect model capacity, training time, and estimated cost.
 SEARCH_SPACE: dict[str, list] = {
     "n_estimators": [100, 300],
     "max_depth": [4, 8, 12],

@@ -67,7 +67,12 @@ train-remote: ## Submit one smoke-test training job to Vertex AI
 	python scripts/train_remote.py --image-uri "$(IMAGE_URI)" --instance "$(INSTANCE)"
 
 tune: ## Budgeted hyperparameter study (>=12 trials)
-	python -m src.tune --trials 12 --budget-thb 150
+	@test -n "$(IMAGE_URI)" || (echo "IMAGE_URI is required" && exit 1)
+	python scripts/tune_remote.py \
+	  --image-uri "$(IMAGE_URI)" \
+	  --instance "$(INSTANCE)" \
+	  --trials 12 \
+	  --budget-thb 150
 
 compare: ## Rank runs by metric and by cost per point
 	python scripts/compare_runs.py --experiment itcs355-lab2

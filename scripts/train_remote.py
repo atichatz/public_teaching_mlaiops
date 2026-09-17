@@ -3,14 +3,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from cloudlayer.factory import get_adapter
 from src import config, seeds
 from src.train import dvc_data_hash, git_commit
-
 
 def gcs_mount_path(uri: str) -> str:
     """Convert gs://bucket/object to Vertex AI's /gcs mount path."""
