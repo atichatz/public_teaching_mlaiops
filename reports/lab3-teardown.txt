@@ -1,0 +1,11 @@
+python -c "from src import config; from cloudlayer.factory import get_adapter; \
+cfg=config.load(); print(get_adapter(cfg).teardown(cfg.tags(3)))"
+Undeploying Endpoint model: projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576
+Undeploy Endpoint model backing LRO: projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576/operations/4000146584590352384
+Endpoint model undeployed. Resource name: projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576
+Deleting Endpoint : projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576
+Endpoint deleted. . Resource name: projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576
+Deleting Endpoint resource: projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576
+Delete Endpoint backing LRO: projects/764569607430/locations/asia-southeast1/operations/1716540098536800256
+Endpoint resource projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576 deleted.
+['projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576']
