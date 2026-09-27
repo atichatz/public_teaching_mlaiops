@@ -1,0 +1,2 @@
+Detection rule declared before measurement:
+Degradation is detected when p95 latency is at least 200 ms or error rate is at least 1%.

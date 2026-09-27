@@ -1,0 +1,3 @@
+Attempt 1 did not trigger the declared detection rule.
+p95=195.033 ms, error_rate=0%, detected=False.
+The baseline was restored after the unsuccessful attempt.

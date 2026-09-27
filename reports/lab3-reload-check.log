@@ -1,0 +1,10 @@
+python scripts/reload_check.py
+loading projects/764569607430/locations/asia-southeast1/models/itcs355-6688193@1
+aliases: candidate, default, staging
+  reading 125: p(failure)=0.0182
+  reading 126: p(failure)=0.0702
+  reading 127: p(failure)=0.0289
+  reading 128: p(failure)=0.0277
+  reading 129: p(failure)=0.0132
+
+PASS  model reloaded from the registry and scored rows

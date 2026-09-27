@@ -1,0 +1,15 @@
+python scripts/deploy.py \
+  --endpoint itcs355-6688193-lab3 \
+  --instance n1-standard-2
+Creating Endpoint
+Create Endpoint backing LRO: projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576/operations/2683336274793725952
+Endpoint created. Resource name: projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576
+To use this Endpoint in another session:
+endpoint = aiplatform.Endpoint('projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576')
+created endpoint: projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576
+Deploying Model projects/764569607430/locations/asia-southeast1/models/itcs355-6688193 to Endpoint : projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576
+Deploy Endpoint model backing LRO: projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576/operations/8705774876494921728
+Endpoint model deployed. Resource name: projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576
+deployed endpoint: projects/764569607430/locations/asia-southeast1/endpoints/8589853228139544576
+traffic split: {'3722148126207770624': 100}
+saved endpoint: /mnt/d/P4/P4_T1/ML Operation and Deployment/lab/public_teaching_mlaiops/reports/lab3-endpoint.txt

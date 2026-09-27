@@ -1,0 +1,9 @@
+{
+  "mode": "batch",
+  "requests": 1,
+  "predictions": 100,
+  "elapsed_seconds": 0.862608032002754,
+  "predictions_per_second": 115.92750854385822,
+  "milliseconds_per_prediction": 8.62608032002754
+}
+saved: /mnt/d/P4/P4_T1/ML Operation and Deployment/lab/public_teaching_mlaiops/reports/lab3-batch-batch.json

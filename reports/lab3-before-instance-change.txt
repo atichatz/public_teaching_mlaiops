@@ -1,0 +1,17 @@
+deployedModels:
+- createTime: '2026-09-26T10:31:59.255051Z'
+  dedicatedResources:
+    machineSpec:
+      machineType: n1-standard-2
+    maxReplicaCount: 1
+    minReplicaCount: 1
+  displayName: itcs355-lab3-baseline
+  id: '3722148126207770624'
+  model: projects/764569607430/locations/asia-southeast1/models/itcs355-6688193
+  modelVersionId: '2'
+  serviceAccount: itcs355-lab2-runner@itcs355-6688193.iam.gserviceaccount.com
+  status:
+    availableReplicaCount: 1
+    lastUpdateTime: '2026-09-26T11:38:34.893565Z'
+trafficSplit:
+  '3722148126207770624': 100

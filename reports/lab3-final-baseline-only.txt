@@ -1,0 +1,2 @@
+ID                       DISPLAY_NAME                      TRAFFIC_SPLIT
+['1830636282712162304']  ['itcs355-lab3-baseline-canary']  {'1830636282712162304': 100}

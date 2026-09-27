@@ -297,3 +297,112 @@ class GcpAdapter(CloudAdapter):
             "artifact_uri": model.uri,
             "metadata": metadata,
         }
+    def deploy(
+        self,
+        model_ref: str,
+        endpoint: str,
+        instance: str,
+    ) -> str:
+        aiplatform.init(
+            project=self.cfg.project_id,
+            location=self.cfg.region,
+        )
+
+        model = aiplatform.Model(
+            model_name=model_ref,
+            project=self.cfg.project_id,
+            location=self.cfg.region,
+        )
+
+        matches = aiplatform.Endpoint.list(
+            filter=f'display_name="{endpoint}"',
+            project=self.cfg.project_id,
+            location=self.cfg.region,
+        )
+
+        if matches:
+            target = matches[0]
+            print(
+                "using existing endpoint: "
+                f"{target.resource_name}"
+            )
+        else:
+            target = aiplatform.Endpoint.create(
+                display_name=endpoint,
+                labels=self.cfg.tags(3),
+                project=self.cfg.project_id,
+                location=self.cfg.region,
+                sync=True,
+            )
+            print(
+                "created endpoint: "
+                f"{target.resource_name}"
+            )
+
+        target.deploy(
+            model=model,
+            deployed_model_display_name=(
+                "itcs355-lab3-baseline"
+            ),
+            machine_type=instance,
+            min_replica_count=1,
+            max_replica_count=1,
+            traffic_percentage=100,
+            service_account=self.cfg.identity_ref,
+            sync=True,
+        )
+
+        target.wait()
+        print(f"deployed endpoint: {target.resource_name}")
+        print(f"traffic split: {target.traffic_split}")
+        return target.resource_name
+
+    def invoke(
+        self,
+        endpoint: str,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        aiplatform.init(
+            project=self.cfg.project_id,
+            location=self.cfg.region,
+        )
+
+        target = aiplatform.Endpoint(
+            endpoint_name=endpoint,
+            project=self.cfg.project_id,
+            location=self.cfg.region,
+        )
+
+        response = target.raw_predict(
+            body=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+            },
+            timeout=60,
+        )
+
+        response.raise_for_status()
+        return response.json()
+    def teardown(self, tags: dict[str, str]) -> list[str]:
+        """Delete Vertex AI endpoints carrying all requested labels."""
+        aiplatform.init(
+            project=self.cfg.project_id,
+            location=self.cfg.region,
+        )
+
+        deleted: list[str] = []
+
+        for endpoint in aiplatform.Endpoint.list(
+            project=self.cfg.project_id,
+            location=self.cfg.region,
+        ):
+            labels = dict(
+                getattr(endpoint.gca_resource, "labels", {}) or {}
+            )
+
+            if all(labels.get(key) == value for key, value in tags.items()):
+                resource_name = endpoint.resource_name
+                endpoint.delete(force=True, sync=True)
+                deleted.append(resource_name)
+
+        return deleted

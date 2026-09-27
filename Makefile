@@ -56,7 +56,7 @@ verify: ## Check the produced metric against the README claim
 
 teardown: ## Delete every resource tagged course=itcs355 for this lab
 	python -c "from src import config; from cloudlayer.factory import get_adapter; \
-	cfg=config.load(); print(get_adapter(cfg).teardown(cfg.tags(1)))"
+	cfg=config.load(); print(get_adapter(cfg).teardown(cfg.tags(3)))"
 
 clean: ## Remove local artifacts
 	rm -rf mlruns mlartifacts mlflow.db reports/metrics.json .pytest_cache
@@ -93,6 +93,13 @@ loadtest: ## Load test at three concurrency levels
 	  echo "=== $$vus VUs ==="; \
 	  k6 run -e TARGET=$(TARGET) -e VUS=$$vus loadtest/k6.js || true; \
 	done
+deploy: ## Deploy the registered serving model
+	python scripts/deploy.py \
+	  --endpoint itcs355-6688193-lab3 \
+	  --instance n1-standard-2
+
+smoke: ## Invoke the endpoint with three known payloads
+	python scripts/smoke.py
 
 # --- Lab 4 -------------------------------------------------------------------
 inject-drift: ## Shift a feature's distribution on purpose

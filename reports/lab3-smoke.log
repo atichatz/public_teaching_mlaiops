@@ -1,0 +1,5 @@
+python scripts/smoke.py
+PASS payload=1 probability=0.026792 model_version=1
+PASS payload=2 probability=0.465681 model_version=1
+PASS payload=3 probability=0.046556 model_version=1
+PASS all smoke-test requests succeeded

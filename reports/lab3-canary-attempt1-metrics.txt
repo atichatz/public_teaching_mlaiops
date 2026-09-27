@@ -1,0 +1,5 @@
+p50_ms=135.130
+p95_ms=195.033
+p99_ms=325.351
+error_rate=0.0000%
+degradation_detected=False

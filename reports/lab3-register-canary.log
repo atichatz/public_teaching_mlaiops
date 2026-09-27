@@ -1,0 +1,9 @@
+Creating Model
+Create Model backing LRO: projects/764569607430/locations/asia-southeast1/models/itcs355-6688193/operations/2473778154632642560
+Model created. Resource name: projects/764569607430/locations/asia-southeast1/models/itcs355-6688193@4
+To use this Model in another session:
+model = aiplatform.Model('projects/764569607430/locations/asia-southeast1/models/itcs355-6688193@4')
+serving model: projects/764569607430/locations/asia-southeast1/models/itcs355-6688193@4
+version: 4
+artifact: gs://itcs355-6688193-mlops-atichat/itcs355/lab2/jobs/itcs355-lab2-smoke-20260917-110242
+image: asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-serve@sha256:b50e3cbef3fecdcdce5f364ec157a78b29afd22089e06c049039e7250238af5d

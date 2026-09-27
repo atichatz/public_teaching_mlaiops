@@ -27,33 +27,56 @@ logging.basicConfig(
 log = logging.getLogger("service")
 
 STATE: dict[str, Any] = {"model": None, "version": os.environ.get("MODEL_VERSION", "unknown")}
-
+PREDICTION_DELAY_MS = float(os.environ.get("PREDICTION_DELAY_MS", "0"))
 
 def _load_model():
-    """Load once, at startup. Never per request.
-
-    Loading per request is the commonest cause of a p99 that looks nothing like p50, and
-    it is the first thing to check when your latency distribution has a long tail.
-    """
-    name = os.environ.get("MODEL_REGISTRY_NAME")
-    version = os.environ.get("MODEL_VERSION")
-    if name and version:
-        import mlflow.sklearn  # imported lazily so tests can run without a registry
-
-        mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", "sqlite:///mlflow.db"))
-        return mlflow.sklearn.load_model(f"models:/{name}/{version}")
-
-    # Fallback for local development and tests only. Submitting this is not acceptable:
-    # your deployed service must load a registered version.
+    """Load one registered model version once during application startup."""
     from pathlib import Path
 
     import joblib
 
-    path = Path(os.environ.get("MODEL_PATH", "reports/model.joblib"))
+    name = os.environ.get("MODEL_REGISTRY_NAME")
+    version = os.environ.get("MODEL_VERSION")
+
+    if name and version:
+        import tempfile
+
+        from cloudlayer.factory import get_adapter
+        from src import config
+
+        cfg = config.load()
+        adapter = get_adapter(cfg)
+
+        registered = adapter.resolve_registered_model(
+            name=name,
+            version=version,
+        )
+
+        model_uri = (
+            registered["artifact_uri"].rstrip("/")
+            + "/model.joblib"
+        )
+
+        cache_dir = Path(tempfile.mkdtemp(prefix="itcs355-model-"))
+        local_model = cache_dir / "model.joblib"
+
+        adapter.download(model_uri, str(local_model))
+        return joblib.load(local_model)
+
+    # Local development and automated tests only.
+    path = Path(
+        os.environ.get(
+            "MODEL_PATH",
+            "reports/model.joblib",
+        )
+    )
+
     if not path.exists():
         raise RuntimeError(
-            "No model available. Set MODEL_REGISTRY_NAME and MODEL_VERSION, or MODEL_PATH."
+            "No model available. Set MODEL_REGISTRY_NAME and "
+            "MODEL_VERSION for cloud deployment, or MODEL_PATH locally."
         )
+
     return joblib.load(path)
 
 
@@ -109,6 +132,10 @@ def ready():
 def _score(rows: list[dict]) -> list[float]:
     if STATE["model"] is None:
         raise HTTPException(status_code=503, detail="model not loaded")
+
+    if PREDICTION_DELAY_MS > 0:
+        time.sleep(PREDICTION_DELAY_MS / 1000)
+
     import pandas as pd
 
     from src.data import FEATURES

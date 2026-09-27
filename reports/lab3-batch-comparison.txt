@@ -1,0 +1,5 @@
+single elapsed: 78.329676 s
+batch elapsed: 0.862608 s
+batch speedup: 90.81x
+single predictions/s: 1.277
+batch predictions/s: 115.928

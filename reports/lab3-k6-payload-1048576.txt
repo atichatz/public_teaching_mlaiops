@@ -1,0 +1,155 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: loadtest/k6.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m0s max duration (incl. graceful stop):
+              * default: 1 looping VUs for 30s (gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+default   [   3% ] 1 VUs  01.0s/30s
+
+running (0m02.0s), 1/1 VUs, 1 complete and 0 interrupted iterations
+default   [   7% ] 1 VUs  02.0s/30s
+
+running (0m03.0s), 1/1 VUs, 2 complete and 0 interrupted iterations
+default   [  10% ] 1 VUs  03.0s/30s
+
+running (0m04.0s), 1/1 VUs, 3 complete and 0 interrupted iterations
+default   [  13% ] 1 VUs  04.0s/30s
+
+running (0m05.0s), 1/1 VUs, 4 complete and 0 interrupted iterations
+default   [  17% ] 1 VUs  05.0s/30s
+
+running (0m06.0s), 1/1 VUs, 5 complete and 0 interrupted iterations
+default   [  20% ] 1 VUs  06.0s/30s
+
+running (0m07.0s), 1/1 VUs, 6 complete and 0 interrupted iterations
+default   [  23% ] 1 VUs  07.0s/30s
+
+running (0m08.0s), 1/1 VUs, 7 complete and 0 interrupted iterations
+default   [  27% ] 1 VUs  08.0s/30s
+
+running (0m09.0s), 1/1 VUs, 8 complete and 0 interrupted iterations
+default   [  30% ] 1 VUs  09.0s/30s
+
+running (0m10.0s), 1/1 VUs, 9 complete and 0 interrupted iterations
+default   [  33% ] 1 VUs  10.0s/30s
+
+running (0m11.0s), 1/1 VUs, 10 complete and 0 interrupted iterations
+default   [  37% ] 1 VUs  11.0s/30s
+
+running (0m12.0s), 1/1 VUs, 11 complete and 0 interrupted iterations
+default   [  40% ] 1 VUs  12.0s/30s
+
+running (0m13.0s), 1/1 VUs, 12 complete and 0 interrupted iterations
+default   [  43% ] 1 VUs  13.0s/30s
+
+running (0m14.0s), 1/1 VUs, 13 complete and 0 interrupted iterations
+default   [  47% ] 1 VUs  14.0s/30s
+
+running (0m15.0s), 1/1 VUs, 14 complete and 0 interrupted iterations
+default   [  50% ] 1 VUs  15.0s/30s
+
+running (0m16.0s), 1/1 VUs, 15 complete and 0 interrupted iterations
+default   [  53% ] 1 VUs  16.0s/30s
+
+running (0m17.0s), 1/1 VUs, 15 complete and 0 interrupted iterations
+default   [  57% ] 1 VUs  17.0s/30s
+
+running (0m18.0s), 1/1 VUs, 16 complete and 0 interrupted iterations
+default   [  60% ] 1 VUs  18.0s/30s
+
+running (0m19.0s), 1/1 VUs, 17 complete and 0 interrupted iterations
+default   [  63% ] 1 VUs  19.0s/30s
+
+running (0m20.0s), 1/1 VUs, 18 complete and 0 interrupted iterations
+default   [  67% ] 1 VUs  20.0s/30s
+
+running (0m21.0s), 1/1 VUs, 19 complete and 0 interrupted iterations
+default   [  70% ] 1 VUs  21.0s/30s
+
+running (0m22.0s), 1/1 VUs, 20 complete and 0 interrupted iterations
+default   [  73% ] 1 VUs  22.0s/30s
+
+running (0m23.0s), 1/1 VUs, 21 complete and 0 interrupted iterations
+default   [  77% ] 1 VUs  23.0s/30s
+
+running (0m24.0s), 1/1 VUs, 22 complete and 0 interrupted iterations
+default   [  80% ] 1 VUs  24.0s/30s
+
+running (0m25.0s), 1/1 VUs, 23 complete and 0 interrupted iterations
+default   [  83% ] 1 VUs  25.0s/30s
+
+running (0m26.0s), 1/1 VUs, 23 complete and 0 interrupted iterations
+default   [  87% ] 1 VUs  26.0s/30s
+
+running (0m27.0s), 1/1 VUs, 24 complete and 0 interrupted iterations
+default   [  90% ] 1 VUs  27.0s/30s
+
+running (0m28.0s), 1/1 VUs, 25 complete and 0 interrupted iterations
+default   [  93% ] 1 VUs  28.0s/30s
+
+running (0m29.0s), 1/1 VUs, 26 complete and 0 interrupted iterations
+default   [  97% ] 1 VUs  29.0s/30s
+
+running (0m30.0s), 1/1 VUs, 27 complete and 0 interrupted iterations
+default   [ 100% ] 1 VUs  30.0s/30s
+
+
+  █ THRESHOLDS 
+
+    predict_failures
+    ✗ 'rate<0.01' rate=3.57%
+
+    predict_latency_ms
+    ✗ 'p(95)<200' p(95)=1241.997306
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 84     2.758215/s
+    checks_succeeded...: 96.42% 81 out of 84
+    checks_failed......: 3.57%  3 out of 84
+
+    ✗ status is 200
+      ↳  96% — ✓ 27 / ✗ 1
+    ✗ probability present
+      ↳  96% — ✓ 27 / ✗ 1
+    ✗ version reported
+      ↳  96% — ✓ 27 / ✗ 1
+
+    CUSTOM
+    predict_failures...............: 3.57% 1 out of 28
+    predict_latency_ms.............: avg=1083.370933 p(50)=1027.75177 p(95)=1241.997306 p(99)=1996.076051 max=2250.229437
+
+    HTTP
+    http_req_duration..............: avg=1.08s       p(50)=1.02s      p(95)=1.24s       p(99)=1.99s       max=2.25s      
+      { expected_response:true }...: avg=1.08s       p(50)=1.02s      p(95)=1.25s       p(99)=2s          max=2.25s      
+    http_req_failed................: 3.57% 1 out of 28
+    http_reqs......................: 28    0.919405/s
+
+    EXECUTION
+    iteration_duration.............: avg=1.08s       p(50)=1.02s      p(95)=1.24s       p(99)=1.99s       max=2.25s      
+    iterations.....................: 28    0.919405/s
+    vus............................: 1     min=1       max=1
+    vus_max........................: 1     min=1       max=1
+
+    NETWORK
+    data_received..................: 19 kB 637 B/s
+    data_sent......................: 30 MB 968 kB/s
+
+
+
+
+running (0m30.5s), 0/1 VUs, 28 complete and 0 interrupted iterations
+default ✓ [ 100% ] 1 VUs  30s
+time="2026-09-26T19:44:33+07:00" level=error msg="thresholds on metrics 'predict_failures, predict_latency_ms' have been crossed"
