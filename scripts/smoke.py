@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sys
+import os
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -40,8 +41,9 @@ PAYLOADS = [
 
 def main() -> int:
     cfg = config.load()
+    lab_number = int(os.environ.get("LAB_NUMBER", "3"))
     endpoint = (
-        cfg.reports_dir / "lab3-endpoint.txt"
+        cfg.reports_dir / f"lab{lab_number}-endpoint.txt"
     ).read_text().strip()
 
     adapter = get_adapter(cfg)

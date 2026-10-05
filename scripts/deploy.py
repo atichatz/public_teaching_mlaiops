@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import os
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -25,14 +26,15 @@ def main() -> int:
 
     cfg = config.load()
     reports = cfg.reports_dir
+    lab_number = int(os.environ.get("LAB_NUMBER", "3"))
 
     model_ref = (
-        reports / "lab3-serving-model.txt"
+        reports / f"lab{lab_number}-serving-model.txt"
     ).read_text().strip()
 
     endpoint_name = (
         args.endpoint
-        or f"{cfg.model_registry_name}-lab3"
+        or f"{cfg.model_registry_name}-lab{lab_number}-staging"
     )
 
     adapter = get_adapter(cfg)
@@ -42,7 +44,7 @@ def main() -> int:
         instance=args.instance,
     )
 
-    output = reports / "lab3-endpoint.txt"
+    output = reports / f"lab{lab_number}-endpoint.txt"
     output.write_text(resource_name + "\n")
 
     print(f"saved endpoint: {output}")

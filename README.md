@@ -134,3 +134,15 @@ Model version 1 was promoted from `candidate` to `staging` only after its lineag
 
 That last check is not optional. A credential in Git history is an automatic deduction in this
 course, and rotating it is your responsibility, not the grader's.
+
+## Lab 4 — Data contract incident coverage
+
+- The schema contract test would catch an upstream producer renaming or
+  removing a required sensor column before the broken data reaches training.
+- The null-value test would catch a sensor pipeline that starts sending
+  missing readings after a device or parsing failure.
+- The plausible-range test would catch a unit error, such as temperature
+  being sent in Fahrenheit instead of Celsius.
+- The machine-leakage test would catch readings from the same machine being
+  placed in both training and validation, which would produce an unrealistically
+  high validation score.

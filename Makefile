@@ -9,11 +9,10 @@ SEED ?= 20260101
 IMAGE_URI ?=
 INSTANCE ?= e2-standard-4
 
-.PHONY: help setup cloud-check data test portability-audit train image image-push reproduce verify clean teardown \
-        train-remote tune compare reload-check serve serve-image loadtest drift inject-drift pipeline cost swap-check llm-eval llm-gate
+.PHONY: help setup cloud-check data test scan-secrets portability-audit train image image-push reproduce verify clean teardown train-remote tune compare reload-check serve serve-image loadtest deploy smoke inject-drift drift pipeline cost swap-check llm-eval llm-gate
+
 help:
 	@grep -E "^[a-zA-Z_-]+:.*?## .*$$" $(MAKEFILE_LIST) | awk -F":.*?## " "{printf \"  %-20s %s\\n\", \$$1, \$$2}"
-
 setup: ## Install dependencies and print environment status
 	python -m pip install --upgrade pip
 	pip install -r requirements.txt
@@ -27,6 +26,9 @@ data: ## Generate the default dataset (deterministic)
 
 test: ## Run data contract and split property tests
 	pytest -q tests/
+
+scan-secrets: ## Scan full Git history for committed credentials
+	python scripts/scan_secrets.py
 
 portability-audit: ## Fail if provider strings leak into src/
 	python scripts/portability_audit.py
