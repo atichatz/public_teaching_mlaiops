@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import sys
+import os
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -16,6 +17,8 @@ from src import config
 def main() -> int:
     cfg = config.load()
     reports = cfg.reports_dir
+    lab_number = int(os.environ.get("LAB_NUMBER", "3"))
+    commit_sha = os.environ.get("COMMIT_SHA", "manual")
 
     source_version = (
         reports / "lab2-registry-version.txt"
@@ -24,7 +27,7 @@ def main() -> int:
     image_lines = [
         line.strip()
         for line in (
-            reports / "lab3-serving-image-uri.txt"
+            reports / f"lab{lab_number}-serving-image-uri.txt"
         ).read_text().splitlines()
         if "@sha256:" in line
     ]
@@ -32,7 +35,7 @@ def main() -> int:
     if not image_lines:
         raise RuntimeError(
             "No digest-pinned serving image found in "
-            "reports/lab3-serving-image-uri.txt"
+            f"reports/lab{lab_number}-serving-image-uri.txt"
         )
 
     serving_image = image_lines[-1]
@@ -59,7 +62,8 @@ def main() -> int:
     }
 
     description = {
-        "purpose": "lab3-serving",
+        "purpose": f"lab{lab_number}-staging",
+        "git_commit": commit_sha,
         "source_model_version": source_version,
         "serving_image": serving_image,
         "health_route": "/ready",
@@ -80,21 +84,23 @@ def main() -> int:
         serving_container_health_route="/ready",
         serving_container_predict_route="/predict",
         serving_container_environment_variables=environment,
-        version_aliases=["lab3-serving"],
+        version_aliases=[
+        f"lab{lab_number}-{commit_sha[:8].lower()}"
+        ],
         version_description=json.dumps(
             description,
             sort_keys=True,
         ),
-        labels=cfg.tags(3),
+        labels=cfg.tags(lab_number),
         project=cfg.project_id,
         location=cfg.region,
         sync=True,
     )
 
-    (reports / "lab3-serving-model.txt").write_text(
+    (reports / f"lab{lab_number}-serving-model.txt").write_text(
         model.versioned_resource_name + "\n"
     )
-    (reports / "lab3-serving-version.txt").write_text(
+    (reports / f"lab{lab_number}-serving-version.txt").write_text(
         str(model.version_id) + "\n"
     )
 

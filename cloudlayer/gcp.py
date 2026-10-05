@@ -17,6 +17,7 @@ import json
 import time
 import re
 import subprocess
+import os
 
 from datetime import datetime, timezone
 from typing import Any
@@ -308,6 +309,11 @@ class GcpAdapter(CloudAdapter):
             location=self.cfg.region,
         )
 
+        lab_number = int(os.environ.get("LAB_NUMBER", "3"))
+        replace_existing = (
+            os.environ.get("REPLACE_EXISTING_DEPLOYMENT", "0") == "1"
+        )
+
         model = aiplatform.Model(
             model_name=model_ref,
             project=self.cfg.project_id,
@@ -326,10 +332,21 @@ class GcpAdapter(CloudAdapter):
                 "using existing endpoint: "
                 f"{target.resource_name}"
             )
+            if replace_existing:
+                for deployed_model in list(target.list_models()):
+                    print(
+                        "undeploying previous staging model: "
+                        f"{deployed_model.id}"
+                    )
+                    target.undeploy(
+                        deployed_model_id=deployed_model.id,
+                        sync=True,
+                    )
+
         else:
             target = aiplatform.Endpoint.create(
                 display_name=endpoint,
-                labels=self.cfg.tags(3),
+                labels=self.cfg.tags(lab_number),
                 project=self.cfg.project_id,
                 location=self.cfg.region,
                 sync=True,
@@ -342,7 +359,7 @@ class GcpAdapter(CloudAdapter):
         target.deploy(
             model=model,
             deployed_model_display_name=(
-                "itcs355-lab3-baseline"
+                f"itcs355-lab{lab_number}-staging"
             ),
             machine_type=instance,
             min_replica_count=1,
