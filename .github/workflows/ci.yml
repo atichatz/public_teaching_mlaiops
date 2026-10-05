@@ -1,7 +1,7 @@
 # ITCS355 Lab 4 — continuous integration.
 #
-# The sequence matters: cheap checks first, so a schema mistake fails in 30 seconds
-# rather than after a build. Deploy is in cd.yml and runs only on main, only on green.
+# Cheap checks run first. Deployment is handled by cd.yml only after
+# this workflow passes on the main branch.
 
 name: CI
 
@@ -12,38 +12,50 @@ on:
 
 permissions:
   contents: read
-  id-token: write        # required for OIDC. See cd.yml — no long-lived keys anywhere.
 
 jobs:
   test:
+    name: Tests and security checks
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Checkout complete Git history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Secret scan
+        run: python scripts/scan_secrets.py
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
 
-      - name: Install
+      - name: Install hashed dependencies
         run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          # TODO(Lab 4): once requirements.txt carries hashes, add --require-hashes.
+          python -m pip install --upgrade pip
+          pip install --require-hashes -r requirements.txt
 
       - name: Lint
-        # ruff is pinned in requirements.txt and installed above. Installing it unpinned
-        # here would let a new ruff release fail this build on unchanged code.
         run: ruff check src/ service/ monitoring/ scripts/ tests/
 
       - name: Portability audit
         run: python scripts/portability_audit.py
 
-      - name: Generate dataset
+      - name: Generate test dataset
         run: python scripts/make_dataset.py
 
+      - name: Unit and split-logic tests
+        run: |
+          pytest -q tests/test_data.py \
+            -k "split_is_deterministic or split_changes_with_seed or every_row_lands"
+
       - name: Data contract tests
-        run: pytest -q tests/test_data.py
+        run: |
+          pytest -q tests/test_data.py \
+            -k "schema or no_nulls or plausible_ranges or target_is_binary or identifier_is_unique or no_machine_leaks"
 
       - name: Model behaviour tests
         run: pytest -q tests/test_model_behaviour.py
@@ -52,51 +64,102 @@ jobs:
         run: pytest -q tests/test_service.py
 
   build:
+    name: Build and integration test
     needs: test
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout tested commit
+        uses: actions/checkout@v4
 
-      - uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      # The integration test below runs make_dataset/train/export on the runner to
-      # produce the artefact the serving container is then asked to serve, so this job
-      # needs the same interpreter and pins as the test job.
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
 
-      - name: Install
+      - name: Install hashed dependencies
         run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          pip install --require-hashes -r requirements.txt
 
       - name: Build training image
-        run: docker buildx build --platform linux/amd64 -t itcs355:${{ github.sha }} --load .
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            -t itcs355:${{ github.sha }} \
+            --load .
 
       - name: Build serving image
-        run: docker buildx build --platform linux/amd64 -f service/Dockerfile.serve -t itcs355-serve:${{ github.sha }} --load .
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            -f service/Dockerfile.serve \
+            -t itcs355-serve:${{ github.sha }} \
+            --load .
 
-      - name: Integration test
+      - name: Prepare integration-test model
         run: |
           python scripts/make_dataset.py
           python -m src.train --metrics-out reports/metrics.json
           python scripts/export_model.py --out reports/model.joblib
-          docker run -d --rm --name svc -p 8080:8080 \
+
+      - name: Start serving container
+        run: |
+          docker run -d \
+            --name lab4-integration-service \
+            -p 8080:8080 \
             -v "$PWD/reports:/app/reports:ro" \
             -e MODEL_PATH=/app/reports/model.joblib \
             -e MODEL_VERSION=${{ github.sha }} \
             itcs355-serve:${{ github.sha }}
-          for i in $(seq 1 30); do
-            curl -sf localhost:8080/ready && break || sleep 2
-          done
-          curl -sf -X POST localhost:8080/predict \
-            -H 'content-type: application/json' \
-            -d '{"temp_c":78.4,"vibration_mm_s":3.1,"pressure_kpa":315.2,"hours_since_service":4200,"load_pct":68,"ambient_humidity":55}' \
-            | tee /dev/stderr | grep -q probability
-          docker stop svc
 
-      # Images are tagged with the commit SHA, never `latest`. A `latest` tag makes it
-      # impossible to say which code is serving, which is the question you will be asked
-      # during an incident.
+      - name: Wait for readiness
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl -sf http://localhost:8080/ready; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "Service did not become ready"
+          docker logs lab4-integration-service
+          exit 1
+
+      - name: Integration test prediction
+        run: |
+          curl -sf \
+            -X POST http://localhost:8080/predict \
+            -H "content-type: application/json" \
+            -d '{"temp_c":78.4,"vibration_mm_s":3.1,"pressure_kpa":315.2,"hours_since_service":4200,"load_pct":68,"ambient_humidity":55}' \
+            > integration-response.json
+
+          python -c "
+          import json
+          from pathlib import Path
+
+          response = json.loads(
+              Path('integration-response.json').read_text()
+          )
+
+          probability = response.get('probability')
+          version = response.get('model_version')
+
+          assert probability is not None, response
+          assert 0.0 <= float(probability) <= 1.0, response
+          assert version == '${{ github.sha }}', response
+
+          print('PASS integration response:', response)
+          "
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs lab4-integration-service
+
+      - name: Stop integration container
+        if: always()
+        run: docker rm -f lab4-integration-service || true
