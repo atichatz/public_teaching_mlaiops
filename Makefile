@@ -28,6 +28,9 @@ data: ## Generate the default dataset (deterministic)
 test: ## Run data contract and split property tests
 	pytest -q tests/
 
+scan-secrets: ## Scan full Git history for committed credentials
+	python scripts/scan_secrets.py
+
 portability-audit: ## Fail if provider strings leak into src/
 	python scripts/portability_audit.py
 
