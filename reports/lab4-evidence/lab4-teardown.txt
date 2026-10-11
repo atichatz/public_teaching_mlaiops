@@ -1,0 +1,4 @@
+docker compose -f compose.monitoring.yml down -v --remove-orphans
+python -c "from src import config; from cloudlayer.factory import get_adapter; \
+cfg=config.load(); print(get_adapter(cfg).teardown(cfg.tags(3)))"
+Local monitoring resources removed. Disable the Drift monitoring workflow in GitHub Actions.
