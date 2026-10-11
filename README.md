@@ -167,3 +167,12 @@ deployment. With instructor approval, the following substitutions are used:
 These substitutions preserve the CI/CD, observability, drift-detection,
 alerting, and failure-evidence objectives without reopening the billing
 account.
+
+### Lab 4 drift threshold
+
+The drift alert threshold is PSI 0.25. Comparing the reference dataset with
+an unchanged copy produced PSI 0.0, while the controlled six-degree shift of
+`temp_c` produced PSI 0.38333 and KS 0.24567. The threshold therefore ignores
+the unchanged baseline but catches the material shift used in the exercise.
+An alert is investigated as a possible upstream data problem before any
+retraining decision is made.

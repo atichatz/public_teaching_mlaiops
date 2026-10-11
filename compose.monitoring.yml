@@ -33,6 +33,13 @@ services:
       - "9090:9090"
     depends_on:
       - prediction-service
+      - pushgateway
+    restart: unless-stopped
+
+  pushgateway:
+    image: prom/pushgateway:v1.10.0
+    ports:
+      - "9091:9091"
     restart: unless-stopped
 
   grafana:

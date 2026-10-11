@@ -8,3 +8,9 @@ scrape_configs:
     static_configs:
       - targets:
           - prediction-service:8080
+
+  - job_name: drift-detector
+    honor_labels: true
+    static_configs:
+      - targets:
+          - pushgateway:9091

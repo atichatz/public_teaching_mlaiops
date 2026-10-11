@@ -68,6 +68,30 @@
       ],
       "title": "Current model version",
       "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "red", "value": 0.25}
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 22},
+      "id": 6,
+      "options": {"legend": {"displayMode": "table", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+      "targets": [
+        {"expr": "drift_psi", "legendFormat": "{{feature}}", "refId": "A"}
+      ],
+      "title": "Feature drift PSI (alert threshold 0.25)",
+      "type": "timeseries"
     }
   ],
   "refresh": "5s",
