@@ -1,0 +1,10 @@
+feature                      psi        ks  verdict
+temp_c                   0.38333   0.24567  significant
+vibration_mm_s           0.00000   0.00000  stable
+pressure_kpa             0.00000   0.00000  stable
+hours_since_service      0.00000   0.00000  stable
+load_pct                 0.00000   0.00000  stable
+ambient_humidity         0.00000   0.00000  stable
+
+ALERT  1 feature(s) above threshold 0.25: temp_c
+Before you retrain: is this drift, or is it a broken upstream pipeline? Retraining on corrupted data destroys a working model faster than any schedule would.
