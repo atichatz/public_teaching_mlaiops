@@ -146,3 +146,24 @@ course, and rotating it is your responsibility, not the grader's.
 - The machine-leakage test would catch readings from the same machine being
   placed in both training and validation, which would produce an unrealistically
   high validation score.
+
+  ## Lab 4 — Billing-free deployment substitutions
+
+The original GCP deployment workflow using GitHub OIDC and Workload
+Identity Federation is preserved in
+`docs/cd-gcp-oidc-reference.yml`.
+
+The Google Cloud billing account became inactive before the final Lab 4
+deployment. With instructor approval, the following substitutions are used:
+
+- GitHub Container Registry replaces Google Artifact Registry.
+- Images remain immutable and are tagged with the tested commit SHA.
+- Staging is a GitHub Actions job that runs only after successful CI on
+  `main`, pulls the published image, starts it, and smoke-tests `/predict`.
+- Prometheus and Grafana containers replace Cloud Monitoring.
+- A scheduled GitHub Actions workflow replaces Cloud Scheduler.
+- Drift alerts are still delivered to a real channel.
+
+These substitutions preserve the CI/CD, observability, drift-detection,
+alerting, and failure-evidence objectives without reopening the billing
+account.
