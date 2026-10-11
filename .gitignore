@@ -17,6 +17,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .venv/
+reports/lab4-evidence/*.zip
 
 # Excel lock files — created while the specification workbook is open.
 ~$*
