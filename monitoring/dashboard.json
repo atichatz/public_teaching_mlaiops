@@ -1,25 +1,84 @@
 {
-  "_comment": "Lab 4 — dashboard as code. Portable Grafana definition; import it, or translate the panels to CloudWatch / Azure Monitor / Cloud Monitoring. Committing the dashboard is better than clicking one together, and is noted favourably.",
-  "title": "ITCS355 — Prediction service",
-  "refresh": "30s",
+  "annotations": {"list": []},
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
   "panels": [
-    {"id": 1, "title": "Request rate", "type": "timeseries", "unit": "reqps",
-     "target": "sum(rate(http_requests_total[1m]))"},
-    {"id": 2, "title": "Error rate by class", "type": "timeseries", "unit": "percentunit",
-     "target": "sum by (status_class) (rate(http_requests_total{status_class=~\"4xx|5xx\"}[5m])) / sum(rate(http_requests_total[5m]))",
-     "_note": "4xx and 5xx must be split. 4xx is usually a caller problem; 5xx is yours."},
-    {"id": 3, "title": "Latency p50 / p95 / p99", "type": "timeseries", "unit": "ms",
-     "targets": [
-       "histogram_quantile(0.50, sum by (le) (rate(request_latency_ms_bucket[5m])))",
-       "histogram_quantile(0.95, sum by (le) (rate(request_latency_ms_bucket[5m])))",
-       "histogram_quantile(0.99, sum by (le) (rate(request_latency_ms_bucket[5m])))"
-     ],
-     "_note": "If p99 is far above p95 in a repeating pattern, suspect cold start or a per-request model load."},
-    {"id": 4, "title": "Feature drift (PSI, rolling)", "type": "timeseries",
-     "target": "drift_psi",
-     "_note": "TODO(Lab 4): at least one feature-distribution statistic is required. Emit it from monitoring/drift.py via adapter.emit_metric."},
-    {"id": 5, "title": "Model version in production", "type": "stat",
-     "target": "model_version_info",
-     "_note": "During a canary you should see two. If you see two when you are not deploying, something is wrong."}
-  ]
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}},
+      "targets": [
+        {"expr": "sum(rate(http_requests_total{path!=\"/metrics\"}[1m]))", "legendFormat": "requests/sec", "refId": "A"}
+      ],
+      "title": "Request rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "id": 2,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+      "targets": [
+        {"expr": "sum(rate(http_requests_total{status_class=\"4xx\"}[5m])) / clamp_min(sum(rate(http_requests_total{path!=\"/metrics\"}[5m])), 0.000001)", "legendFormat": "4xx", "refId": "A"},
+        {"expr": "sum(rate(http_requests_total{status_class=\"5xx\"}[5m])) / clamp_min(sum(rate(http_requests_total{path!=\"/metrics\"}[5m])), 0.000001)", "legendFormat": "5xx", "refId": "B"}
+      ],
+      "title": "Error rate by class",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "ms", "min": 0}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "id": 3,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+      "targets": [
+        {"expr": "histogram_quantile(0.50, sum by (le) (rate(request_latency_ms_bucket{path=\"/predict\"}[5m])))", "legendFormat": "p50", "refId": "A"},
+        {"expr": "histogram_quantile(0.95, sum by (le) (rate(request_latency_ms_bucket{path=\"/predict\"}[5m])))", "legendFormat": "p95", "refId": "B"},
+        {"expr": "histogram_quantile(0.99, sum by (le) (rate(request_latency_ms_bucket{path=\"/predict\"}[5m])))", "legendFormat": "p99", "refId": "C"}
+      ],
+      "title": "Prediction latency p50 / p95 / p99",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "id": 4,
+      "options": {"legend": {"displayMode": "table", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+      "targets": [
+        {"expr": "feature_rolling_mean", "legendFormat": "{{feature}}", "refId": "A"}
+      ],
+      "title": "Rolling feature mean (last 100 rows)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}}, "overrides": []},
+      "gridPos": {"h": 6, "w": 24, "x": 0, "y": 16},
+      "id": 5,
+      "options": {"colorMode": "none", "graphMode": "none", "justifyMode": "center", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "name", "wideLayout": true},
+      "targets": [
+        {"expr": "model_version_info", "instant": true, "legendFormat": "Model {{version}}", "refId": "A"}
+      ],
+      "title": "Current model version",
+      "type": "stat"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 40,
+  "tags": ["itcs355", "lab4", "mlops"],
+  "templating": {"list": []},
+  "time": {"from": "now-15m", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "ITCS355 Lab 4 — Prediction Service",
+  "uid": "itcs355-lab4",
+  "version": 1,
+  "weekStart": ""
 }
