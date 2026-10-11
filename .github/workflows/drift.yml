@@ -1,0 +1,102 @@
+# ITCS355 Lab 4 — billing-free scheduled drift monitoring.
+# Scheduled checks compare an unchanged current window with the reference.
+# workflow_dispatch can inject controlled drift to prove the real alert fires.
+
+name: Drift monitoring
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Current-window mode
+        required: true
+        default: shift
+        type: choice
+        options:
+          - baseline
+          - shift
+          - scale
+          - mix
+
+permissions:
+  contents: read
+
+jobs:
+  drift-check:
+    name: Scheduled PSI drift check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install hashed dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install --require-hashes -r requirements.txt
+
+      - name: Generate reference window
+        run: python scripts/make_dataset.py
+
+      - name: Prepare current window
+        env:
+          DRIFT_MODE: ${{ inputs.mode || 'baseline' }}
+        run: |
+          echo "INJECTION_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+          if [ "$DRIFT_MODE" = "baseline" ]; then
+            cp data/raw/sensors.csv data/current.csv
+          else
+            python scripts/inject_drift.py \
+              --feature temp_c \
+              --mode "$DRIFT_MODE" \
+              --magnitude 6
+          fi
+
+      - name: Run PSI drift detector
+        run: |
+          set +e
+          python -m monitoring.drift \
+            --current data/current.csv \
+            --threshold 0.25 \
+            --out reports/drift.json | tee reports/drift-output.txt
+          detector_status=${PIPESTATUS[0]}
+          set -e
+          echo "DRIFT_EXIT_CODE=$detector_status" >> "$GITHUB_ENV"
+          echo "DETECTION_FINISHED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+          if [ "$detector_status" -ne 0 ] && [ "$detector_status" -ne 2 ]; then
+            exit "$detector_status"
+          fi
+
+      - name: Upload drift evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-evidence-${{ github.run_id }}
+          path: |
+            reports/drift.json
+            reports/drift-output.txt
+          retention-days: 30
+
+      - name: Send real email alert
+        if: env.DRIFT_EXIT_CODE == '2'
+        env:
+          SMTP_HOST: smtp.gmail.com
+          SMTP_PORT: "465"
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_APP_PASSWORD: ${{ secrets.SMTP_APP_PASSWORD }}
+          ALERT_TO: ${{ secrets.ALERT_TO }}
+          INJECTION_STARTED_AT: ${{ env.INJECTION_STARTED_AT }}
+          DETECTION_FINISHED_AT: ${{ env.DETECTION_FINISHED_AT }}
+        run: python scripts/send_drift_alert.py --report reports/drift.json --threshold 0.25
+
+      - name: Mark detected drift as a failed check
+        if: env.DRIFT_EXIT_CODE == '2'
+        run: exit 2
