@@ -1,7 +1,8 @@
-# ITCS355 Lab 4 — continuous deployment.
+# ITCS355 Lab 4 — billing-free continuous deployment.
 #
-# Runs only for a successful CI workflow on main.
-# Google Cloud authentication uses short-lived OIDC credentials.
+# Runs only after successful CI on main. The serving image is pushed to
+# GitHub Container Registry with the tested commit SHA, then pulled and
+# smoke-tested in a staging container.
 
 name: CD
 
@@ -13,32 +14,22 @@ on:
 
 permissions:
   contents: read
-  id-token: write
+  packages: write
 
 jobs:
-  deploy-staging:
-    name: Deploy to Vertex AI staging
+  publish-and-smoke-test:
+    name: Publish image and smoke-test staging
     if: >-
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
-    environment: staging
 
     env:
-      CLOUD_PROVIDER: gcp
-      PROJECT_ID: ${{ vars.PROJECT_ID }}
-      REGION: ${{ vars.REGION }}
-      BLOB_URI: ${{ vars.BLOB_URI }}
-      CONTAINER_REGISTRY: ${{ vars.CONTAINER_REGISTRY }}
-      MLFLOW_TRACKING_URI: sqlite:///mlflow.db
-      MODEL_REGISTRY_NAME: ${{ vars.MODEL_REGISTRY_NAME }}
-      IDENTITY_REF: ${{ vars.IDENTITY_REF }}
-      LAB_NUMBER: "4"
-      REPLACE_EXISTING_DEPLOYMENT: "1"
       COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
+      IMAGE_URI: ghcr.io/${{ github.repository_owner }}/public_teaching_mlaiops-serve:${{ github.event.workflow_run.head_sha }}
 
     steps:
-      - name: Checkout the commit that passed CI
+      - name: Checkout commit that passed CI
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
@@ -54,85 +45,101 @@ jobs:
           python -m pip install --upgrade pip
           pip install --require-hashes -r requirements.txt
 
+      - name: Prepare staging model
+        run: |
+          python scripts/make_dataset.py
+          python -m src.train --metrics-out reports/metrics.json
+          python scripts/export_model.py --out reports/model.joblib
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Authenticate to Google Cloud with OIDC
-        uses: google-github-actions/auth@v3
+      - name: Build and push SHA-tagged image
+        uses: docker/build-push-action@v6
         with:
-          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_DEPLOY_SA }}
+          context: .
+          file: service/Dockerfile.serve
+          platforms: linux/amd64
+          push: true
+          tags: ${{ env.IMAGE_URI }}
 
-      - name: Set up Google Cloud CLI
-        uses: google-github-actions/setup-gcloud@v3
+      - name: Pull published image
+        run: docker pull "${IMAGE_URI}"
 
-      - name: Configure Artifact Registry authentication
+      - name: Start staging container
         run: |
-          gcloud auth configure-docker \
-            "${REGION}-docker.pkg.dev" \
-            --quiet
+          docker run -d \
+            --name lab4-staging \
+            -p 8080:8080 \
+            -v "$PWD/reports:/app/reports:ro" \
+            -e MODEL_PATH=/app/reports/model.joblib \
+            -e MODEL_VERSION="${COMMIT_SHA}" \
+            "${IMAGE_URI}"
 
-      - name: Build SHA-tagged serving image
+      - name: Wait for readiness
         run: |
-          docker buildx build \
-            --platform linux/amd64 \
-            -f service/Dockerfile.serve \
-            -t "itcs355-serve:${COMMIT_SHA}" \
-            --load .
+          for attempt in $(seq 1 30); do
+            if curl -sf http://localhost:8080/ready; then
+              exit 0
+            fi
+            sleep 2
+          done
 
-      - name: Push serving image
+          echo "Staging container did not become ready"
+          docker logs lab4-staging
+          exit 1
+
+      - name: Smoke-test prediction
         run: |
-          IMAGE_URI="$(
-            python -c "
-          from src import config
-          from cloudlayer.factory import get_adapter
+          curl -sf \
+            -X POST http://localhost:8080/predict \
+            -H "content-type: application/json" \
+            -d '{"temp_c":78.4,"vibration_mm_s":3.1,"pressure_kpa":315.2,"hours_since_service":4200,"load_pct":68,"ambient_humidity":55}' \
+            | tee reports/lab4-staging-smoke.json
 
-          cfg = config.load()
-          adapter = get_adapter(cfg)
+          python -c "
+          import json
+          from pathlib import Path
 
-          print(
-              adapter.push_image(
-                  'itcs355-serve:${COMMIT_SHA}'
-              )
+          response = json.loads(
+              Path('reports/lab4-staging-smoke.json').read_text()
           )
-          " | tail -n 1
-          )"
 
-          if [[ "$IMAGE_URI" != *"@sha256:"* ]]; then
-            echo "Push did not return a digest-pinned image URI"
-            echo "Returned value: $IMAGE_URI"
-            exit 1
-          fi
+          probability = float(response['probability'])
+          version = response['model_version']
 
-          echo "$IMAGE_URI" \
+          assert 0.0 <= probability <= 1.0, response
+          assert version == '${COMMIT_SHA}', response
+
+          print('PASS staging smoke test:', response)
+          "
+
+      - name: Save image reference
+        run: |
+          echo "${IMAGE_URI}" \
             | tee reports/lab4-serving-image-uri.txt
 
-          echo "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
+      - name: Show staging logs on failure
+        if: failure()
+        run: docker logs lab4-staging
 
-      - name: Register staging model version
-        run: |
-          python scripts/register_serving_model.py
+      - name: Stop staging container
+        if: always()
+        run: docker rm -f lab4-staging || true
 
-      - name: Deploy to staging
-        run: |
-          python scripts/deploy.py \
-            --endpoint "${MODEL_REGISTRY_NAME}-lab4-staging" \
-            --instance n1-standard-4
-
-      - name: Smoke test staging
-        run: |
-          python scripts/smoke.py \
-            | tee reports/lab4-staging-smoke.txt
-
-      - name: Save deployment evidence
+      - name: Upload staging evidence
         uses: actions/upload-artifact@v4
         with:
           name: lab4-staging-${{ github.event.workflow_run.head_sha }}
           path: |
             reports/lab4-serving-image-uri.txt
-            reports/lab4-serving-model.txt
-            reports/lab4-serving-version.txt
-            reports/lab4-endpoint.txt
-            reports/lab4-staging-smoke.txt
+            reports/lab4-staging-smoke.json
           if-no-files-found: error
           retention-days: 14
