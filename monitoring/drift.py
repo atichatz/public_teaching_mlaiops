@@ -19,6 +19,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from prometheus_client import CollectorRegistry, Gauge, push_to_gateway
 
 # Conventional PSI reading, and it IS only conventional — it comes from credit scoring,
 # where features are stable and volumes are large. Your problem may warrant something
@@ -110,6 +111,10 @@ def main() -> int:
                     help="alert above this PSI. Justify your value in the README.")
     ap.add_argument("--out", type=Path, default=Path("reports/drift.json"))
     ap.add_argument("--emit", action="store_true", help="send scores as cloud metrics")
+    ap.add_argument(
+        "--pushgateway-url",
+        help="push drift_psi metrics to a Prometheus Pushgateway, for example http://localhost:9091",
+    )
     args = ap.parse_args()
 
     reference = pd.read_csv(args.reference)
@@ -122,6 +127,23 @@ def main() -> int:
     print(f"{'feature':<22}{'psi':>10}{'ks':>10}  verdict")
     for r in results:
         print(f"{r.feature:<22}{r.psi:>10.5f}{r.ks_statistic:>10.5f}  {r.verdict}")
+
+    if args.pushgateway_url:
+        registry = CollectorRegistry()
+        drift_metric = Gauge(
+            "drift_psi",
+            "Population Stability Index compared with the training reference window.",
+            ["feature"],
+            registry=registry,
+        )
+        for r in results:
+            drift_metric.labels(feature=r.feature).set(r.psi)
+        push_to_gateway(
+            args.pushgateway_url,
+            job="lab4-drift-detector",
+            registry=registry,
+        )
+        print(f"pushed drift_psi metrics to {args.pushgateway_url}")
 
     if args.emit:
         # TODO(Lab 4): implement emit_metric in your adapter, then this reaches

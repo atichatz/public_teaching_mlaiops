@@ -4,6 +4,7 @@ cloud.env
 # DVC manages these; Git must not.
 data/raw/
 data/_local_blob/
+data/current.csv
 .dvc/cache/
 
 # Local tracking store
@@ -17,6 +18,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .venv/
+reports/lab4-evidence/*.zip
 
 # Excel lock files — created while the specification workbook is open.
 ~$*

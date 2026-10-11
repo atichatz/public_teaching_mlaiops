@@ -1,0 +1,1 @@
+ghcr.io/atichatz/public_teaching_mlaiops-serve:90114b2d6f138738e502428da2b12fc56031a99f

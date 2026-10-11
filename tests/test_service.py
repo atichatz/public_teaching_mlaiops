@@ -61,6 +61,18 @@ def test_predict_returns_probability_and_version(client):
     assert r.headers["x-request-id"]
 
 
+def test_metrics_expose_required_observability_signals(client):
+    client.post("/predict", json=VALID)
+    metrics = client.get("/metrics")
+
+    assert metrics.status_code == 200
+    body = metrics.text
+    assert "http_requests_total" in body
+    assert "request_latency_ms_bucket" in body
+    assert 'feature_rolling_mean{feature="temp_c"}' in body
+    assert 'model_version_info{version="test-1"}' in body
+
+
 def test_out_of_range_input_is_rejected(client):
     bad = {**VALID, "load_pct": 250.0}
     assert client.post("/predict", json=bad).status_code == 422
