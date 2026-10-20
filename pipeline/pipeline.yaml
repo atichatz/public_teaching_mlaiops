@@ -32,7 +32,7 @@ steps:
 
   - name: evaluate
     image: "${CONTAINER_REGISTRY}/itcs355:${IMAGE_TAG}"
-    command: ["python", "scripts/evaluation_gate.py", "--metrics", "/outputs/metrics.json"]
+    command: ["python", "scripts/evaluation_gate.py", "--metrics", "/outputs/metrics.json", "--decision-out", "/outputs/gate_decision"]
     depends_on: [train]
     outputs: [gate_decision]
 
