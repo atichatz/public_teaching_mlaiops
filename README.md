@@ -223,3 +223,17 @@ The planned schedule is Sunday at 02:00:
 
 ```text
 0 2 * * 0
+
+### Lab 5 evaluation gate
+
+The registration gate uses `test_roc_auc`. A candidate must score at least
+0.84 and must improve over the incumbent by at least 0.002. The reproducible
+Lab 1 result is approximately 0.8482 with about 0.001 variation, so the
+absolute floor blocks a materially degraded model and the improvement margin
+prevents ordinary training noise from being promoted.
+
+The local proof uses the same candidate against two incumbents. Against
+0.845, the improvement is approximately 0.0032 and the gate passes. Against
+0.847, the improvement is only approximately 0.0012 and the gate exits with
+code 1, preventing registration. Reading the incumbent metric directly from
+the managed registry remains pending until the Lab 5 cloud plan is approved.

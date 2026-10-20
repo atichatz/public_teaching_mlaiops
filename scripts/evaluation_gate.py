@@ -15,9 +15,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-# TODO(Lab 5): choose and defend these. A margin of zero means noise gets promoted;
-# too large a margin means real improvements never ship.
-MIN_ABSOLUTE = 0.75
+# The reproducible Lab 1 model scores about 0.8482 test ROC AUC with
+# approximately +/-0.001 variation. The absolute floor of 0.84 blocks a
+# materially degraded model. The 0.002 improvement requirement is twice the
+# observed variation, so ordinary training noise is not promoted.
+MIN_ABSOLUTE = 0.84
 MIN_IMPROVEMENT = 0.002
 
 
