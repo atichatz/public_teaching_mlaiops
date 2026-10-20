@@ -29,7 +29,16 @@ def main() -> int:
     ap.add_argument("--metric", default="test_roc_auc")
     ap.add_argument("--incumbent", type=float, default=None,
                     help="current production score; omit to read from the registry")
+    ap.add_argument("--decision-out", type=Path, default=None,
+                    help="optional file for writing the gate decision: pass or fail")
     args = ap.parse_args()
+
+    def finish(decision: str, exit_code: int) -> int:
+        if args.decision_out:
+            args.decision_out.parent.mkdir(parents=True, exist_ok=True)
+            args.decision_out.write_text(decision + "\n")
+            print(f"wrote gate decision={decision} to {args.decision_out}")
+        return exit_code
 
     payload = json.loads(args.metrics.read_text())
     candidate = float(payload[args.metric])
@@ -37,7 +46,7 @@ def main() -> int:
 
     if candidate < MIN_ABSOLUTE:
         print(f"GATE FAIL  below absolute floor {MIN_ABSOLUTE}")
-        return 1
+        return finish("fail", 1)
 
     incumbent = args.incumbent
     if incumbent is None:
@@ -45,16 +54,16 @@ def main() -> int:
         # assuming there is no incumbent. A first run legitimately has none.
         print("no incumbent supplied — treating as first registration")
         print("GATE PASS")
-        return 0
+        return finish("pass", 0)
 
     delta = candidate - incumbent
     print(f"incumbent {incumbent:.4f}  delta {delta:+.4f}  required {MIN_IMPROVEMENT:+.4f}")
     if delta < MIN_IMPROVEMENT:
         print("GATE FAIL  improvement within noise; not registering")
-        return 1
+        return finish("fail", 1)
 
     print("GATE PASS")
-    return 0
+    return finish("pass", 0)
 
 
 if __name__ == "__main__":
