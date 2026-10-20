@@ -1,0 +1,10 @@
+PASS pipeline YAML parsed
+PASS expected six steps
+PASS dependencies resolve
+PASS validation aborts on failure
+PASS training uses Spot compute
+PASS registration depends on evaluation
+PASS registration requires gate_decision == 'pass'
+PASS staging depends on registration
+DAG: ingest -> validate -> train -> evaluate -> register -> deploy_staging
+Schedule: 0 2 * * 0
