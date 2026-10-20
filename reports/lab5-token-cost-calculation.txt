@@ -1,0 +1,9 @@
+total_cases=10
+cases_with_provider_usage=8
+average_input_tokens=416
+average_output_tokens=37
+before_thb_per_1k=4.7940
+output_cap_tokens=25
+saving_thb_per_1k=0.4080
+after_thb_per_1k=4.3860
+cache_breakeven_hit_rate=21.7391%
