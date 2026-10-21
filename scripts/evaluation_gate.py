@@ -36,7 +36,9 @@ def main() -> int:
     def finish(decision: str, exit_code: int) -> int:
         if args.decision_out:
             args.decision_out.parent.mkdir(parents=True, exist_ok=True)
-            args.decision_out.write_text(decision + "\n")
+            # KFP string outputs are compared byte-for-byte by dsl.If.  A trailing
+            # newline would turn ``pass`` into ``pass\n`` and skip the branch.
+            args.decision_out.write_text(decision)
             print(f"wrote gate decision={decision} to {args.decision_out}")
         return exit_code
 
