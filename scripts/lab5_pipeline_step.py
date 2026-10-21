@@ -88,7 +88,7 @@ def train(args: argparse.Namespace) -> int:
         _download(f"{run_uri}/data/sensors.csv", dataset)
         env = {
             **os.environ,
-            "MLFLOW_TRACKING_URI": f"file://{root / 'mlruns'}",
+            "MLFLOW_TRACKING_URI": f"sqlite:///{root / 'mlflow.db'}",
             "GIT_COMMIT": args.image_tag,
         }
         subprocess.run(
