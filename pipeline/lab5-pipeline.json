@@ -1,0 +1,636 @@
+{
+  "components": {
+    "comp-condition-1": {
+      "dag": {
+        "tasks": {
+          "deploy-component": {
+            "cachingOptions": {
+              "enableCache": true
+            },
+            "componentRef": {
+              "name": "comp-deploy-component"
+            },
+            "dependentTasks": [
+              "register-component"
+            ],
+            "inputs": {
+              "parameters": {
+                "endpoint_name": {
+                  "componentInputParameter": "pipelinechannel--endpoint_name"
+                },
+                "machine_type": {
+                  "componentInputParameter": "pipelinechannel--machine_type"
+                },
+                "model_resource": {
+                  "taskOutputParameter": {
+                    "outputParameterKey": "model_resource",
+                    "producerTask": "register-component"
+                  }
+                },
+                "project_id": {
+                  "componentInputParameter": "pipelinechannel--project_id"
+                },
+                "region": {
+                  "componentInputParameter": "pipelinechannel--region"
+                },
+                "run_id": {
+                  "componentInputParameter": "pipelinechannel--run_id"
+                },
+                "serving_service_account": {
+                  "componentInputParameter": "pipelinechannel--serving_service_account"
+                }
+              }
+            },
+            "taskInfo": {
+              "name": "deploy-component"
+            }
+          },
+          "register-component": {
+            "cachingOptions": {
+              "enableCache": true
+            },
+            "componentRef": {
+              "name": "comp-register-component"
+            },
+            "inputs": {
+              "parameters": {
+                "base_uri": {
+                  "componentInputParameter": "pipelinechannel--base_uri"
+                },
+                "container_registry": {
+                  "componentInputParameter": "pipelinechannel--container_registry"
+                },
+                "model_name": {
+                  "componentInputParameter": "pipelinechannel--model_name"
+                },
+                "project_id": {
+                  "componentInputParameter": "pipelinechannel--project_id"
+                },
+                "region": {
+                  "componentInputParameter": "pipelinechannel--region"
+                },
+                "run_id": {
+                  "componentInputParameter": "pipelinechannel--run_id"
+                },
+                "serving_image_uri": {
+                  "componentInputParameter": "pipelinechannel--serving_image_uri"
+                },
+                "serving_service_account": {
+                  "componentInputParameter": "pipelinechannel--serving_service_account"
+                },
+                "training_image_uri": {
+                  "runtimeValue": {
+                    "constant": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:daa1756795540d4cda8d7a3719077f50493143ce0e3cab6aa067cc28c521c069"
+                  }
+                }
+              }
+            },
+            "taskInfo": {
+              "name": "register-component"
+            }
+          }
+        }
+      },
+      "inputDefinitions": {
+        "parameters": {
+          "pipelinechannel--base_uri": {
+            "parameterType": "STRING"
+          },
+          "pipelinechannel--container_registry": {
+            "parameterType": "STRING"
+          },
+          "pipelinechannel--endpoint_name": {
+            "parameterType": "STRING"
+          },
+          "pipelinechannel--evaluate-component-decision": {
+            "parameterType": "STRING"
+          },
+          "pipelinechannel--machine_type": {
+            "parameterType": "STRING"
+          },
+          "pipelinechannel--model_name": {
+            "parameterType": "STRING"
+          },
+          "pipelinechannel--project_id": {
+            "parameterType": "STRING"
+          },
+          "pipelinechannel--region": {
+            "parameterType": "STRING"
+          },
+          "pipelinechannel--run_id": {
+            "parameterType": "STRING"
+          },
+          "pipelinechannel--serving_image_uri": {
+            "parameterType": "STRING"
+          },
+          "pipelinechannel--serving_service_account": {
+            "parameterType": "STRING"
+          }
+        }
+      }
+    },
+    "comp-deploy-component": {
+      "executorLabel": "exec-deploy-component",
+      "inputDefinitions": {
+        "parameters": {
+          "endpoint_name": {
+            "parameterType": "STRING"
+          },
+          "machine_type": {
+            "parameterType": "STRING"
+          },
+          "model_resource": {
+            "parameterType": "STRING"
+          },
+          "project_id": {
+            "parameterType": "STRING"
+          },
+          "region": {
+            "parameterType": "STRING"
+          },
+          "run_id": {
+            "parameterType": "STRING"
+          },
+          "serving_service_account": {
+            "parameterType": "STRING"
+          }
+        }
+      },
+      "outputDefinitions": {
+        "parameters": {
+          "endpoint_resource": {
+            "parameterType": "STRING"
+          }
+        }
+      }
+    },
+    "comp-evaluate-component": {
+      "executorLabel": "exec-evaluate-component",
+      "inputDefinitions": {
+        "parameters": {
+          "base_uri": {
+            "parameterType": "STRING"
+          },
+          "incumbent": {
+            "parameterType": "NUMBER_DOUBLE"
+          },
+          "run_id": {
+            "parameterType": "STRING"
+          }
+        }
+      },
+      "outputDefinitions": {
+        "parameters": {
+          "decision": {
+            "parameterType": "STRING"
+          }
+        }
+      }
+    },
+    "comp-ingest-component": {
+      "executorLabel": "exec-ingest-component",
+      "inputDefinitions": {
+        "parameters": {
+          "base_uri": {
+            "parameterType": "STRING"
+          },
+          "run_id": {
+            "parameterType": "STRING"
+          }
+        }
+      }
+    },
+    "comp-register-component": {
+      "executorLabel": "exec-register-component",
+      "inputDefinitions": {
+        "parameters": {
+          "base_uri": {
+            "parameterType": "STRING"
+          },
+          "container_registry": {
+            "parameterType": "STRING"
+          },
+          "model_name": {
+            "parameterType": "STRING"
+          },
+          "project_id": {
+            "parameterType": "STRING"
+          },
+          "region": {
+            "parameterType": "STRING"
+          },
+          "run_id": {
+            "parameterType": "STRING"
+          },
+          "serving_image_uri": {
+            "parameterType": "STRING"
+          },
+          "serving_service_account": {
+            "parameterType": "STRING"
+          },
+          "training_image_uri": {
+            "parameterType": "STRING"
+          }
+        }
+      },
+      "outputDefinitions": {
+        "parameters": {
+          "model_resource": {
+            "parameterType": "STRING"
+          }
+        }
+      }
+    },
+    "comp-train-component": {
+      "executorLabel": "exec-train-component",
+      "inputDefinitions": {
+        "parameters": {
+          "base_uri": {
+            "parameterType": "STRING"
+          },
+          "image_tag": {
+            "parameterType": "STRING"
+          },
+          "run_id": {
+            "parameterType": "STRING"
+          }
+        }
+      }
+    },
+    "comp-validate-component": {
+      "executorLabel": "exec-validate-component",
+      "inputDefinitions": {
+        "parameters": {
+          "base_uri": {
+            "parameterType": "STRING"
+          },
+          "run_id": {
+            "parameterType": "STRING"
+          }
+        }
+      }
+    }
+  },
+  "deploymentSpec": {
+    "executors": {
+      "exec-deploy-component": {
+        "container": {
+          "args": [
+            "deploy",
+            "--project-id",
+            "{{$.inputs.parameters['project_id']}}",
+            "--region",
+            "{{$.inputs.parameters['region']}}",
+            "--run-id",
+            "{{$.inputs.parameters['run_id']}}",
+            "--model-resource",
+            "{{$.inputs.parameters['model_resource']}}",
+            "--endpoint-name",
+            "{{$.inputs.parameters['endpoint_name']}}",
+            "--machine-type",
+            "{{$.inputs.parameters['machine_type']}}",
+            "--serving-service-account",
+            "{{$.inputs.parameters['serving_service_account']}}",
+            "--endpoint-out",
+            "{{$.outputs.parameters['endpoint_resource'].output_file}}"
+          ],
+          "command": [
+            "python",
+            "scripts/lab5_pipeline_step.py"
+          ],
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:daa1756795540d4cda8d7a3719077f50493143ce0e3cab6aa067cc28c521c069"
+        }
+      },
+      "exec-evaluate-component": {
+        "container": {
+          "args": [
+            "evaluate",
+            "--base-uri",
+            "{{$.inputs.parameters['base_uri']}}",
+            "--run-id",
+            "{{$.inputs.parameters['run_id']}}",
+            "--incumbent",
+            "{{$.inputs.parameters['incumbent']}}",
+            "--decision-out",
+            "{{$.outputs.parameters['decision'].output_file}}"
+          ],
+          "command": [
+            "python",
+            "scripts/lab5_pipeline_step.py"
+          ],
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:daa1756795540d4cda8d7a3719077f50493143ce0e3cab6aa067cc28c521c069",
+          "resources": {
+            "cpuLimit": 1.0,
+            "memoryLimit": 2.147483648,
+            "resourceCpuLimit": "1",
+            "resourceMemoryLimit": "2Gi"
+          }
+        }
+      },
+      "exec-ingest-component": {
+        "container": {
+          "args": [
+            "ingest",
+            "--base-uri",
+            "{{$.inputs.parameters['base_uri']}}",
+            "--run-id",
+            "{{$.inputs.parameters['run_id']}}"
+          ],
+          "command": [
+            "python",
+            "scripts/lab5_pipeline_step.py"
+          ],
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:daa1756795540d4cda8d7a3719077f50493143ce0e3cab6aa067cc28c521c069",
+          "resources": {
+            "cpuLimit": 1.0,
+            "memoryLimit": 2.147483648,
+            "resourceCpuLimit": "1",
+            "resourceMemoryLimit": "2Gi"
+          }
+        }
+      },
+      "exec-register-component": {
+        "container": {
+          "args": [
+            "register",
+            "--base-uri",
+            "{{$.inputs.parameters['base_uri']}}",
+            "--run-id",
+            "{{$.inputs.parameters['run_id']}}",
+            "--project-id",
+            "{{$.inputs.parameters['project_id']}}",
+            "--region",
+            "{{$.inputs.parameters['region']}}",
+            "--model-name",
+            "{{$.inputs.parameters['model_name']}}",
+            "--training-image-uri",
+            "{{$.inputs.parameters['training_image_uri']}}",
+            "--serving-image-uri",
+            "{{$.inputs.parameters['serving_image_uri']}}",
+            "--container-registry",
+            "{{$.inputs.parameters['container_registry']}}",
+            "--serving-service-account",
+            "{{$.inputs.parameters['serving_service_account']}}",
+            "--model-resource-out",
+            "{{$.outputs.parameters['model_resource'].output_file}}"
+          ],
+          "command": [
+            "python",
+            "scripts/lab5_pipeline_step.py"
+          ],
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:daa1756795540d4cda8d7a3719077f50493143ce0e3cab6aa067cc28c521c069"
+        }
+      },
+      "exec-train-component": {
+        "container": {
+          "args": [
+            "train",
+            "--base-uri",
+            "{{$.inputs.parameters['base_uri']}}",
+            "--run-id",
+            "{{$.inputs.parameters['run_id']}}",
+            "--image-tag",
+            "{{$.inputs.parameters['image_tag']}}"
+          ],
+          "command": [
+            "python",
+            "scripts/lab5_pipeline_step.py"
+          ],
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:daa1756795540d4cda8d7a3719077f50493143ce0e3cab6aa067cc28c521c069",
+          "resources": {
+            "cpuLimit": 1.0,
+            "memoryLimit": 2.147483648,
+            "resourceCpuLimit": "1",
+            "resourceMemoryLimit": "2Gi"
+          }
+        }
+      },
+      "exec-validate-component": {
+        "container": {
+          "args": [
+            "validate",
+            "--base-uri",
+            "{{$.inputs.parameters['base_uri']}}",
+            "--run-id",
+            "{{$.inputs.parameters['run_id']}}"
+          ],
+          "command": [
+            "python",
+            "scripts/lab5_pipeline_step.py"
+          ],
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:daa1756795540d4cda8d7a3719077f50493143ce0e3cab6aa067cc28c521c069",
+          "resources": {
+            "cpuLimit": 1.0,
+            "memoryLimit": 2.147483648,
+            "resourceCpuLimit": "1",
+            "resourceMemoryLimit": "2Gi"
+          }
+        }
+      }
+    }
+  },
+  "pipelineInfo": {
+    "name": "itcs355-training-pipeline"
+  },
+  "root": {
+    "dag": {
+      "tasks": {
+        "condition-1": {
+          "componentRef": {
+            "name": "comp-condition-1"
+          },
+          "dependentTasks": [
+            "evaluate-component"
+          ],
+          "inputs": {
+            "parameters": {
+              "pipelinechannel--base_uri": {
+                "componentInputParameter": "base_uri"
+              },
+              "pipelinechannel--container_registry": {
+                "componentInputParameter": "container_registry"
+              },
+              "pipelinechannel--endpoint_name": {
+                "componentInputParameter": "endpoint_name"
+              },
+              "pipelinechannel--evaluate-component-decision": {
+                "taskOutputParameter": {
+                  "outputParameterKey": "decision",
+                  "producerTask": "evaluate-component"
+                }
+              },
+              "pipelinechannel--machine_type": {
+                "componentInputParameter": "machine_type"
+              },
+              "pipelinechannel--model_name": {
+                "componentInputParameter": "model_name"
+              },
+              "pipelinechannel--project_id": {
+                "componentInputParameter": "project_id"
+              },
+              "pipelinechannel--region": {
+                "componentInputParameter": "region"
+              },
+              "pipelinechannel--run_id": {
+                "componentInputParameter": "run_id"
+              },
+              "pipelinechannel--serving_image_uri": {
+                "componentInputParameter": "serving_image_uri"
+              },
+              "pipelinechannel--serving_service_account": {
+                "componentInputParameter": "serving_service_account"
+              }
+            }
+          },
+          "taskInfo": {
+            "name": "gate-passed"
+          },
+          "triggerPolicy": {
+            "condition": "inputs.parameter_values['pipelinechannel--evaluate-component-decision'] == 'pass'"
+          }
+        },
+        "evaluate-component": {
+          "cachingOptions": {},
+          "componentRef": {
+            "name": "comp-evaluate-component"
+          },
+          "dependentTasks": [
+            "train-component"
+          ],
+          "inputs": {
+            "parameters": {
+              "base_uri": {
+                "componentInputParameter": "base_uri"
+              },
+              "incumbent": {
+                "componentInputParameter": "incumbent"
+              },
+              "run_id": {
+                "componentInputParameter": "run_id"
+              }
+            }
+          },
+          "taskInfo": {
+            "name": "evaluate-component"
+          }
+        },
+        "ingest-component": {
+          "cachingOptions": {},
+          "componentRef": {
+            "name": "comp-ingest-component"
+          },
+          "inputs": {
+            "parameters": {
+              "base_uri": {
+                "componentInputParameter": "base_uri"
+              },
+              "run_id": {
+                "componentInputParameter": "run_id"
+              }
+            }
+          },
+          "taskInfo": {
+            "name": "ingest-component"
+          }
+        },
+        "train-component": {
+          "cachingOptions": {},
+          "componentRef": {
+            "name": "comp-train-component"
+          },
+          "dependentTasks": [
+            "validate-component"
+          ],
+          "inputs": {
+            "parameters": {
+              "base_uri": {
+                "componentInputParameter": "base_uri"
+              },
+              "image_tag": {
+                "componentInputParameter": "image_tag"
+              },
+              "run_id": {
+                "componentInputParameter": "run_id"
+              }
+            }
+          },
+          "taskInfo": {
+            "name": "train-component"
+          }
+        },
+        "validate-component": {
+          "cachingOptions": {},
+          "componentRef": {
+            "name": "comp-validate-component"
+          },
+          "dependentTasks": [
+            "ingest-component"
+          ],
+          "inputs": {
+            "parameters": {
+              "base_uri": {
+                "componentInputParameter": "base_uri"
+              },
+              "run_id": {
+                "componentInputParameter": "run_id"
+              }
+            }
+          },
+          "taskInfo": {
+            "name": "validate-component"
+          }
+        }
+      }
+    },
+    "inputDefinitions": {
+      "parameters": {
+        "base_uri": {
+          "parameterType": "STRING"
+        },
+        "container_registry": {
+          "parameterType": "STRING"
+        },
+        "endpoint_name": {
+          "defaultValue": "itcs355-lab5-staging",
+          "isOptional": true,
+          "parameterType": "STRING"
+        },
+        "image_tag": {
+          "parameterType": "STRING"
+        },
+        "incumbent": {
+          "defaultValue": 0.845,
+          "isOptional": true,
+          "parameterType": "NUMBER_DOUBLE"
+        },
+        "machine_type": {
+          "defaultValue": "n1-standard-2",
+          "isOptional": true,
+          "parameterType": "STRING"
+        },
+        "model_name": {
+          "defaultValue": "itcs355-lab5",
+          "isOptional": true,
+          "parameterType": "STRING"
+        },
+        "project_id": {
+          "parameterType": "STRING"
+        },
+        "region": {
+          "parameterType": "STRING"
+        },
+        "run_id": {
+          "parameterType": "STRING"
+        },
+        "serving_image_uri": {
+          "parameterType": "STRING"
+        },
+        "serving_service_account": {
+          "parameterType": "STRING"
+        }
+      }
+    }
+  },
+  "schemaVersion": "2.1.0",
+  "sdkVersion": "kfp-2.17.0"
+}
