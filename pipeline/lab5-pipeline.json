@@ -80,7 +80,7 @@
                 },
                 "training_image_uri": {
                   "runtimeValue": {
-                    "constant": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:2b326505cf5df9df089ac3e27b4a46e0017f52cde06292452f9ee0d97e21ce46"
+                    "constant": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:c679fc7d912456366de38fbf9a916c3850bb8ec95471c646083f76c4b42e644b"
                   }
                 }
               }
@@ -298,7 +298,7 @@
             "python",
             "scripts/lab5_pipeline_step.py"
           ],
-          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:2b326505cf5df9df089ac3e27b4a46e0017f52cde06292452f9ee0d97e21ce46"
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:c679fc7d912456366de38fbf9a916c3850bb8ec95471c646083f76c4b42e644b"
         }
       },
       "exec-evaluate-component": {
@@ -318,7 +318,7 @@
             "python",
             "scripts/lab5_pipeline_step.py"
           ],
-          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:2b326505cf5df9df089ac3e27b4a46e0017f52cde06292452f9ee0d97e21ce46",
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:c679fc7d912456366de38fbf9a916c3850bb8ec95471c646083f76c4b42e644b",
           "resources": {
             "cpuLimit": 1.0,
             "memoryLimit": 2.147483648,
@@ -340,7 +340,7 @@
             "python",
             "scripts/lab5_pipeline_step.py"
           ],
-          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:2b326505cf5df9df089ac3e27b4a46e0017f52cde06292452f9ee0d97e21ce46",
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:c679fc7d912456366de38fbf9a916c3850bb8ec95471c646083f76c4b42e644b",
           "resources": {
             "cpuLimit": 1.0,
             "memoryLimit": 2.147483648,
@@ -378,7 +378,7 @@
             "python",
             "scripts/lab5_pipeline_step.py"
           ],
-          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:2b326505cf5df9df089ac3e27b4a46e0017f52cde06292452f9ee0d97e21ce46"
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:c679fc7d912456366de38fbf9a916c3850bb8ec95471c646083f76c4b42e644b"
         }
       },
       "exec-train-component": {
@@ -396,7 +396,7 @@
             "python",
             "scripts/lab5_pipeline_step.py"
           ],
-          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:2b326505cf5df9df089ac3e27b4a46e0017f52cde06292452f9ee0d97e21ce46",
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:c679fc7d912456366de38fbf9a916c3850bb8ec95471c646083f76c4b42e644b",
           "resources": {
             "cpuLimit": 1.0,
             "memoryLimit": 2.147483648,
@@ -418,7 +418,7 @@
             "python",
             "scripts/lab5_pipeline_step.py"
           ],
-          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:2b326505cf5df9df089ac3e27b4a46e0017f52cde06292452f9ee0d97e21ce46",
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688193/itcs355/itcs355-lab5@sha256:c679fc7d912456366de38fbf9a916c3850bb8ec95471c646083f76c4b42e644b",
           "resources": {
             "cpuLimit": 1.0,
             "memoryLimit": 2.147483648,
