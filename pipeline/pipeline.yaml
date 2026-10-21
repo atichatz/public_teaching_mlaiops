@@ -38,7 +38,7 @@ steps:
 
   - name: register
     image: "${CONTAINER_REGISTRY}/itcs355:${IMAGE_TAG}"
-    command: ["python", "scripts/register.py"]
+    command: ["python", "scripts/lab5_pipeline_step.py", "register"]
     depends_on: [evaluate]
     condition: "gate_decision == 'pass'"
     # The provider compiler must translate this condition into a real branch.
@@ -46,7 +46,7 @@ steps:
 
   - name: deploy_staging
     image: "${CONTAINER_REGISTRY}/itcs355:${IMAGE_TAG}"
-    command: ["python", "scripts/deploy.py", "--target", "staging"]
+    command: ["python", "scripts/lab5_pipeline_step.py", "deploy"]
     depends_on: [register]
 
 tags:
