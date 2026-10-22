@@ -1,0 +1,4 @@
+candidate test_roc_auc = 0.8482
+incumbent 0.8470  delta +0.0012  required +0.0020
+GATE FAIL  improvement within noise; not registering
+exit_code=1

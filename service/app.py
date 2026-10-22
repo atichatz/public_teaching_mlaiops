@@ -62,6 +62,19 @@ def _load_model():
 
     import joblib
 
+    artifact_uri = os.environ.get("MODEL_ARTIFACT_URI")
+    if artifact_uri:
+        import tempfile
+
+        from cloudlayer.factory import get_adapter
+        from src import config
+
+        cfg = config.load()
+        cache_dir = Path(tempfile.mkdtemp(prefix="itcs355-model-"))
+        local_model = cache_dir / "model.joblib"
+        get_adapter(cfg).download(artifact_uri, str(local_model))
+        return joblib.load(local_model)
+
     name = os.environ.get("MODEL_REGISTRY_NAME")
     version = os.environ.get("MODEL_VERSION")
 

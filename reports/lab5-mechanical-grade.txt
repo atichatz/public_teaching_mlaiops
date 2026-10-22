@@ -1,0 +1,21 @@
+ITCS355 Lab 5 grading — /mnt/d/P4/P4_T1/ML Operation and Deployment/lab/public_teaching_mlaiops
+
+Common
+  [PASS] no credentials in history
+  [PASS] cloud.env not committed
+  [PASS] portability audit clean
+  [PASS] data tests pass
+
+Lab 5 — cloud MLOps, portability, cost
+  [PASS] pipeline spec present
+  [PASS] gate is conditional
+  [PASS] gate rejects a weak model
+  [PASS] cost report exists
+  [PASS] cost report completed
+  [PASS] second adapter attempted
+  [ ?  ] REQUIRED: teardown screenshot showing an empty resource list
+  [ ?  ] which permission did they remove, and what broke?
+  [ ?  ] portability verdict — a well-argued 'no' earns full marks
+
+mechanical: 10 passed, 0 failed
+items marked [ ? ] need you — see instructor/RUBRIC-labs-2-to-5.md

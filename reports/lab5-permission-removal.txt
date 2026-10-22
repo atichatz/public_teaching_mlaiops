@@ -1,0 +1,25 @@
+Lab 5 least-privilege failure experiment
+ACTIVE_USER=atichat.kang@gmail.com
+TRAINING_SA=itcs355-lab5-train@itcs355-6688193.iam.gserviceaccount.com
+REMOVED_PERMISSION=storage.objects.create
+Waiting for temporary impersonation permission (1/18)...
+Waiting for temporary impersonation permission (2/18)...
+Waiting for temporary impersonation permission (3/18)...
+Waiting for temporary impersonation permission (4/18)...
+Waiting for temporary impersonation permission (5/18)...
+Waiting for temporary impersonation permission (6/18)...
+WARNING: This command is using service account impersonation. All API calls will be executed as [itcs355-lab5-train@itcs355-6688193.iam.gserviceaccount.com].
+Copying file:///tmp/lab5-permission-probe.txt to gs://itcs355-6688193-mlops-atichat/itcs355/lab5/permission-test/should-fail.txt
+
+WARNING: This command is using service account impersonation. All API calls will be executed as [itcs355-lab5-train@itcs355-6688193.iam.gserviceaccount.com].
+WARNING: This command is using service account impersonation. All API calls will be executed as [itcs355-lab5-train@itcs355-6688193.iam.gserviceaccount.com].
+WARNING: This command is using service account impersonation. All API calls will be executed as [itcs355-lab5-train@itcs355-6688193.iam.gserviceaccount.com].
+ERROR: [itcs355-lab5-train@itcs355-6688193.iam.gserviceaccount.com] does not have permission to access b instance [itcs355-6688193-mlops-atichat] (or it may not exist): itcs355-lab5-train@itcs355-6688193.iam.gserviceaccount.com does not have storage.objects.create access to the Google Cloud Storage object. Permission 'storage.objects.create' denied on resource '//storage.googleapis.com/projects/_/buckets/itcs355-6688193-mlops-atichat/objects/itcs355/lab5/permission-test/should-fail.txt' (or it may not exist). This command is authenticated as atichat.kang@gmail.com which is the active account specified by the [core/account] property. Impersonation is used to impersonate itcs355-lab5-train@itcs355-6688193.iam.gserviceaccount.com.
+.........................................................
+UPLOAD_EXIT_CODE=1
+RESTORE roles/storage.objectCreator
+REMOVE temporary roles/iam.serviceAccountTokenCreator
+RESTORED_ROLES=roles/storage.objectCreator,roles/storage.objectViewer,
+PASS storage.objects.create removal blocked artifact creation
+PASS original bucket access restored
+PASS temporary impersonation permission removed

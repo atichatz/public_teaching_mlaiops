@@ -176,3 +176,70 @@ an unchanged copy produced PSI 0.0, while the controlled six-degree shift of
 the unchanged baseline but catches the material shift used in the exercise.
 An alert is investigated as a possible upstream data problem before any
 retraining decision is made.
+
+## Lab 5 — Cloud identities and retraining plan
+
+### Least-privilege identities
+
+The Lab 5 design uses separate identities so that a compromise in one
+component does not automatically grant control over training, serving, and
+deployment.
+
+| Identity | Required access | Reason |
+|---|---|---|
+| Training service account | Read objects from the training-data bucket; create model artifacts in the artifact bucket; write logs and metrics | The training job needs input data and must save its model and measurements, but it does not need deployment or registry-administration access. |
+| Serving service account | Read the promoted model artifact; write serving logs and metrics | The endpoint only needs to load an approved model and publish operational telemetry. It must not modify training data, register models, or start training jobs. |
+| CI identity through GitHub OIDC | Push SHA-tagged images; submit the managed pipeline; deploy to staging; act as the approved runtime service accounts | CI coordinates releases but does not receive permanent service-account keys. Permission to act as runtime identities will be scoped only to the Lab 5 accounts. |
+
+The permission-removal experiment removed the bucket-level
+`roles/storage.objectCreator` binding from the training identity while leaving
+`roles/storage.objectViewer` in place. An upload executed as that identity then
+failed with `Permission 'storage.objects.create' denied` and exit code 1. The
+creator binding was restored immediately, and the temporary operator
+impersonation binding was removed. This demonstrates that the training runtime
+can still read inputs but cannot publish a model artifact without the narrowly
+scoped create permission. The complete failure and restoration evidence is in
+`reports/lab5-permission-removal.txt`.
+
+### Scheduled retraining strategies
+
+| Strategy | When it is right for this machine-failure system | How it can fail |
+|---|---|---|
+| Fixed weekly schedule | Appropriate when sensor data arrives at a predictable rate and the maintenance team needs a regular candidate-model review. | It may retrain when nothing meaningful changed, spend money unnecessarily, or react too slowly to a sudden change. |
+| Data-volume threshold | Appropriate when a new candidate is useful only after enough new machine readings have accumulated, for example 10,000 validated rows. | Low-volume but important drift may never reach the threshold, while many duplicated or poor-quality rows could trigger an unnecessary run. |
+| Drift-triggered | Appropriate when validated sensor distributions move persistently and the production population has genuinely changed. | A broken sensor, unit conversion error, or corrupted upstream pipeline can trigger retraining on bad data and damage a working model. |
+
+### Selected strategy
+
+The selected strategy is a weekly scheduled pipeline with validation and
+evaluation gates. The schedule creates a candidate only after the data
+contract passes, and registration occurs only when the candidate beats the
+incumbent by the required evaluation margin. A drift alert starts an
+investigation but does not automatically promote a new model.
+
+The worst case is that an upstream sensor begins reporting the wrong unit.
+A purely drift-triggered system could quickly retrain on corrupted data.
+This design first checks schema, ranges, null rates, and data quality. If
+those checks fail, the pipeline stops before training or registration.
+
+The planned schedule is Sunday at 02:00:
+
+```text
+0 2 * * 0
+```
+
+### Lab 5 evaluation gate
+
+The registration gate uses `test_roc_auc`. A candidate must score at least
+0.84 and must improve over the incumbent by at least 0.002. The reproducible
+Lab 1 result is approximately 0.8482 with about 0.001 variation, so the
+absolute floor blocks a materially degraded model and the improvement margin
+prevents ordinary training noise from being promoted.
+
+The local proof uses the same candidate against two incumbents and exercises
+both outcomes. The managed fail run rejected a candidate before registration.
+The final managed pass run scored `0.84655741609384` against an incumbent of
+`0.844`, passed the required 0.002 improvement, registered the model, deployed
+it to staging, and passed three online smoke requests. The staging endpoint was
+then deleted. Managed run, metric, smoke, and teardown evidence is recorded in
+`reports/lab5-managed-gate-pass.txt`.
