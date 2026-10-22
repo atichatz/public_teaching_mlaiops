@@ -1,0 +1,4 @@
+PASS payload=1 probability=0.010419 model_version=pass-fixed-20261021-172046
+PASS payload=2 probability=0.483386 model_version=pass-fixed-20261021-172046
+PASS payload=3 probability=0.060361 model_version=pass-fixed-20261021-172046
+PASS all smoke-test requests succeeded

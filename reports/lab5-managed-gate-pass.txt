@@ -1,0 +1,30 @@
+RUN_ID=pass-fixed-20261021-172046
+PIPELINE_RESOURCE=projects/764569607430/locations/asia-southeast1/pipelineJobs/itcs355-lab5-pass-fixed-20261021-172046
+PIPELINE=PIPELINE_STATE_SUCCEEDED
+ingest-component | SUCCEEDED
+validate-component | SUCCEEDED
+condition-1 | SUCCEEDED
+deploy-component | SUCCEEDED
+register-component | SUCCEEDED
+evaluate-component | SUCCEEDED
+train-component | SUCCEEDED
+itcs355-lab5-pass-fixed-20261021-172046 | SUCCEEDED
+
+=== GATE DECISION ===
+pass
+=== METRICS ===
+{
+  "seed": 20260101,
+  "data_fingerprint": "422cccb9136e8140",
+  "val_roc_auc": 0.8396969952282112,
+  "val_pr_auc": 0.40629248644155647,
+  "test_roc_auc": 0.84655741609384,
+  "test_pr_auc": 0.4674569671696359
+}
+=== SMOKE TEST ===
+PASS payload=1 probability=0.010419 model_version=pass-fixed-20261021-172046
+PASS payload=2 probability=0.483386 model_version=pass-fixed-20261021-172046
+PASS payload=3 probability=0.060361 model_version=pass-fixed-20261021-172046
+PASS all smoke-test requests succeeded
+
+=== ENDPOINTS AFTER TEARDOWN ===
