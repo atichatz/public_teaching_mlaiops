@@ -1,9 +1,9 @@
 primary   gcp
 secondary azure
 
-  [NOT IMPLEMENTED ] upload  
-  [NOT IMPLEMENTED ] download  
-  [NOT IMPLEMENTED ] invoke  
+  [NOT IMPLEMENTED ] upload
+  [NOT IMPLEMENTED ] download
+  [NOT IMPLEMENTED ] invoke
 
 Write-up (Lab 5 Task 4), half a page:
   - which method was hardest to port, and why

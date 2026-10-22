@@ -10,7 +10,7 @@ Waiting for temporary impersonation permission (5/18)...
 Waiting for temporary impersonation permission (6/18)...
 WARNING: This command is using service account impersonation. All API calls will be executed as [itcs355-lab5-train@itcs355-6688193.iam.gserviceaccount.com].
 Copying file:///tmp/lab5-permission-probe.txt to gs://itcs355-6688193-mlops-atichat/itcs355/lab5/permission-test/should-fail.txt
-  
+
 WARNING: This command is using service account impersonation. All API calls will be executed as [itcs355-lab5-train@itcs355-6688193.iam.gserviceaccount.com].
 WARNING: This command is using service account impersonation. All API calls will be executed as [itcs355-lab5-train@itcs355-6688193.iam.gserviceaccount.com].
 WARNING: This command is using service account impersonation. All API calls will be executed as [itcs355-lab5-train@itcs355-6688193.iam.gserviceaccount.com].
