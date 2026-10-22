@@ -191,12 +191,15 @@ deployment.
 | Serving service account | Read the promoted model artifact; write serving logs and metrics | The endpoint only needs to load an approved model and publish operational telemetry. It must not modify training data, register models, or start training jobs. |
 | CI identity through GitHub OIDC | Push SHA-tagged images; submit the managed pipeline; deploy to staging; act as the approved runtime service accounts | CI coordinates releases but does not receive permanent service-account keys. Permission to act as runtime identities will be scoped only to the Lab 5 accounts. |
 
-The planned permission-removal test is to remove the training identity's
-permission to create objects in the model-artifact location. The expected
-result is that validation and training can run, but the training step fails
-when it attempts to save the model. This experiment is pending a working
-billing account and will be replaced with the actual error message and
-workflow evidence after it is run.
+The permission-removal experiment removed the bucket-level
+`roles/storage.objectCreator` binding from the training identity while leaving
+`roles/storage.objectViewer` in place. An upload executed as that identity then
+failed with `Permission 'storage.objects.create' denied` and exit code 1. The
+creator binding was restored immediately, and the temporary operator
+impersonation binding was removed. This demonstrates that the training runtime
+can still read inputs but cannot publish a model artifact without the narrowly
+scoped create permission. The complete failure and restoration evidence is in
+`reports/lab5-permission-removal.txt`.
 
 ### Scheduled retraining strategies
 
@@ -223,6 +226,7 @@ The planned schedule is Sunday at 02:00:
 
 ```text
 0 2 * * 0
+```
 
 ### Lab 5 evaluation gate
 
@@ -232,8 +236,10 @@ Lab 1 result is approximately 0.8482 with about 0.001 variation, so the
 absolute floor blocks a materially degraded model and the improvement margin
 prevents ordinary training noise from being promoted.
 
-The local proof uses the same candidate against two incumbents. Against
-0.845, the improvement is approximately 0.0032 and the gate passes. Against
-0.847, the improvement is only approximately 0.0012 and the gate exits with
-code 1, preventing registration. Reading the incumbent metric directly from
-the managed registry remains pending until the Lab 5 cloud plan is approved.
+The local proof uses the same candidate against two incumbents and exercises
+both outcomes. The managed fail run rejected a candidate before registration.
+The final managed pass run scored `0.84655741609384` against an incumbent of
+`0.844`, passed the required 0.002 improvement, registered the model, deployed
+it to staging, and passed three online smoke requests. The staging endpoint was
+then deleted. Managed run, metric, smoke, and teardown evidence is recorded in
+`reports/lab5-managed-gate-pass.txt`.

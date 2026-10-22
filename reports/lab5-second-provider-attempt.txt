@@ -1,0 +1,13 @@
+primary   gcp
+secondary azure
+
+  [NOT IMPLEMENTED ] upload  
+  [NOT IMPLEMENTED ] download  
+  [NOT IMPLEMENTED ] invoke  
+
+Write-up (Lab 5 Task 4), half a page:
+  - which method was hardest to port, and why
+  - one place the abstraction genuinely leaked and could not be hidden
+  - what a full migration would cost in engineering days
+  - was building this abstraction worth it? A well-argued 'no' scores full marks.
+PORTABILITY_EXIT_CODE=1
